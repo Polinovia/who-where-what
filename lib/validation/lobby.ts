@@ -12,9 +12,16 @@ export const totalQuestionsSchema = z
   .min(4, "4 questions minimum")
   .max(20, "20 questions maximum");
 
+export const maxPlayersSchema = z
+  .number()
+  .int()
+  .min(2, "2 joueurs minimum")
+  .max(12, "12 joueurs maximum");
+
 export const createLobbySchema = z.object({
   pseudo: pseudoSchema,
   name: z.string().trim().min(1).max(40).optional(),
+  maxPlayers: maxPlayersSchema.optional().default(12),
   totalQuestions: totalQuestionsSchema.optional().default(8),
   categoryId: z.string().min(1).optional(),
 });
@@ -30,8 +37,14 @@ export const joinLobbySchema = z.object({
 });
 export type JoinLobbyInput = z.infer<typeof joinLobbySchema>;
 
+export const setReadySchema = z.object({
+  playerId: z.string().min(1),
+  ready: z.boolean(),
+});
+export type SetReadyInput = z.infer<typeof setReadySchema>;
+
 export const submitAnswerSchema = z.object({
-  storyId: z.string().min(1),
+  playerId: z.string().min(1),
   text: z.string().trim().min(1, "Réponse requise").max(120, "120 caractères maximum"),
 });
 export type SubmitAnswerInput = z.infer<typeof submitAnswerSchema>;
