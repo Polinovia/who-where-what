@@ -37,12 +37,15 @@ export async function POST(request: NextRequest) {
   }
 
   const userId = session.user.id;
-  const { friendEmail } = parsed.data;
 
-  const friend = await prisma.user.findUnique({ where: { email: friendEmail } });
+  const friend =
+    "friendEmail" in parsed.data
+      ? await prisma.user.findUnique({ where: { email: parsed.data.friendEmail } })
+      : await prisma.user.findUnique({ where: { id: parsed.data.userId } });
+
   if (!friend) {
     return NextResponse.json(
-      { error: "Aucun utilisateur avec cet email" },
+      { error: "Aucun utilisateur trouvé" },
       { status: 404 },
     );
   }

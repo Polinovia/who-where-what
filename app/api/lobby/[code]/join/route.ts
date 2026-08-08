@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/lib/auth/auth";
 import { joinLobbySchema } from "@/lib/validation/lobby";
 
 export async function POST(
@@ -7,6 +8,7 @@ export async function POST(
   { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
+  const session = await auth();
   const body = await request.json().catch(() => null);
   const parsed = joinLobbySchema.safeParse({ ...(body ?? {}), code });
 
@@ -43,6 +45,7 @@ export async function POST(
         lobbyId: lobby.id,
         pseudo: parsed.data.pseudo,
         isHost: false,
+        userId: session?.user?.id,
       },
     });
 

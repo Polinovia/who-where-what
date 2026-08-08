@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/lib/auth/auth";
 import { createLobbySchema } from "@/lib/validation/lobby";
 import { generateLobbyCode } from "@/lib/lobby-code";
+import { DEFAULT_CATEGORY_NAME } from "@/lib/categories";
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
   const body = await request.json().catch(() => null);
   const parsed = createLobbySchema.safeParse(body);
 
@@ -14,11 +17,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { pseudo, name, totalQuestions, categoryId } = parsed.data;
+  const { pseudo, name, maxPlayers, totalQuestions, categoryId } = parsed.data;
 
   const category = categoryId
     ? await prisma.category.findUnique({ where: { id: categoryId } })
-    : await prisma.category.findUnique({ where: { name: "Classic" } });
+    : await prisma.category.findUnique({ where: { name: DEFAULT_CATEGORY_NAME } });
 
   if (!category) {
     return NextResponse.json({ error: "Catégorie introuvable" }, { status: 404 });
@@ -32,10 +35,11 @@ export async function POST(request: NextRequest) {
         data: {
           code,
           name,
+          maxPlayers,
           totalQuestions,
           categoryId: category.id,
           players: {
-            create: { pseudo, isHost: true },
+            create: { pseudo, isHost: true, userId: session?.user?.id },
           },
         },
         include: { players: true },
