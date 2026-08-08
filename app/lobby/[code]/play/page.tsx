@@ -4,7 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCurrentQuestion, submitAnswer } from "@/lib/api-client";
-import { getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
+import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
 
 export default function PlayPage() {
   const { code } = useParams<{ code: string }>();
@@ -30,10 +30,10 @@ export default function PlayPage() {
   });
 
   useEffect(() => {
-    if (identity === null) {
+    if (getPlayerIdentity(code) === null) {
       router.replace(`/lobby/${code}/join`);
     }
-  }, [identity, code, router]);
+  }, [code, router]);
 
   useEffect(() => {
     if (data?.status === "finished") {

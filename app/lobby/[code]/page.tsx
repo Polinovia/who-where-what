@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getLobby, setReady, kickPlayer, addFriend } from "@/lib/api-client";
-import { getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
+import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
 
 export default function LobbyWaitingRoomPage() {
   const { code } = useParams<{ code: string }>();
@@ -33,10 +33,10 @@ export default function LobbyWaitingRoomPage() {
   const lobby = data?.lobby;
 
   useEffect(() => {
-    if (identity === null) {
+    if (getPlayerIdentity(code) === null) {
       router.replace(`/lobby/${code}/join`);
     }
-  }, [identity, code, router]);
+  }, [code, router]);
 
   useEffect(() => {
     if (lobby?.status === "IN_PROGRESS") {
@@ -145,12 +145,15 @@ export default function LobbyWaitingRoomPage() {
         <ul className="mt-8 flex flex-col gap-2">
           {lobby?.players.map((player) => {
             const isSelf = player.id === me?.id;
+            const isLoggedIn = !!session?.user?.id;
+            const alreadyFriends =
+              !!player.userId && addedFriendIds.includes(player.userId);
             const canAddFriend =
-              !!session?.user?.id &&
+              isLoggedIn &&
               !isSelf &&
               !!player.userId &&
-              player.userId !== session.user.id &&
-              !addedFriendIds.includes(player.userId);
+              player.userId !== session?.user?.id &&
+              !alreadyFriends;
 
             return (
               <li
@@ -168,13 +171,34 @@ export default function LobbyWaitingRoomPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  {canAddFriend && (
+                  {!isSelf && player.userId && (
                     <button
                       type="button"
-                      onClick={() => addFriendMutation.mutate(player.userId!)}
-                      className="text-sm text-stone-500 hover:text-stone-800"
+                      disabled={!isLoggedIn || alreadyFriends}
+                      onClick={() => canAddFriend && addFriendMutation.mutate(player.userId!)}
+                      title={
+                        !isLoggedIn
+                          ? "Log in to add friends"
+                          : alreadyFriends
+                            ? "Friend added"
+                            : "Add friend"
+                      }
+                      aria-label={
+                        !isLoggedIn
+                          ? "Log in to add friends"
+                          : alreadyFriends
+                            ? "Friend added"
+                            : "Add friend"
+                      }
+                      className={`flex h-6 w-6 items-center justify-center rounded-full border text-sm leading-none transition-colors ${
+                        !isLoggedIn
+                          ? "cursor-not-allowed border-stone-300 text-stone-400"
+                          : alreadyFriends
+                            ? "cursor-default border-green-600 bg-green-600 text-white"
+                            : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
+                      }`}
                     >
-                      + friend
+                      {alreadyFriends ? "✓" : "+"}
                     </button>
                   )}
                   {me?.isHost && !isSelf && (
@@ -188,7 +212,7 @@ export default function LobbyWaitingRoomPage() {
                   )}
                   <span
                     className={`h-2.5 w-2.5 rounded-full ${
-                      player.ready ? "bg-green-600" : "bg-stone-300"
+                      player.ready ? "bg-green-600" : "bg-amber-400"
                     }`}
                     aria-label={player.ready ? "Ready" : "Not ready"}
                   />
@@ -202,13 +226,16 @@ export default function LobbyWaitingRoomPage() {
           type="button"
           onClick={() => readyMutation.mutate(!me?.ready)}
           disabled={!me}
-          className={`mt-8 h-12 w-full rounded-xl text-lg transition-colors disabled:opacity-50 ${
+          className={`mt-8 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-lg font-medium transition-colors disabled:opacity-50 ${
             me?.ready
-              ? "border border-stone-300 text-stone-800 hover:bg-stone-100"
+              ? "border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100"
               : "bg-[#33261c] text-stone-50 hover:bg-[#241a13]"
           }`}
         >
-          {me?.ready ? "Not ready" : "Ready"}
+          {me?.ready && (
+            <span className="h-2 w-2 animate-pulse rounded-full bg-amber-500" aria-hidden />
+          )}
+          {me?.ready ? "Waiting for other players…" : "Ready"}
         </button>
 
         <p className="mt-4 text-center font-[family-name:var(--font-serif)] italic text-sm text-stone-500">

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getFinishedStories } from "@/lib/api-client";
-import { getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
+import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
 
 export default function ResultsPage() {
   const { code } = useParams<{ code: string }>();
@@ -24,10 +24,10 @@ export default function ResultsPage() {
   });
 
   useEffect(() => {
-    if (identity === null) {
+    if (getPlayerIdentity(code) === null) {
       router.replace(`/lobby/${code}/join`);
     }
-  }, [identity, code, router]);
+  }, [code, router]);
 
   if (!identity) return null;
 
