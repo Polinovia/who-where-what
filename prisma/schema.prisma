@@ -48,6 +48,7 @@ model Lobby {
   status         LobbyStatus @default(LOBBY)
   maxPlayers     Int         @default(12)
   totalQuestions Int         @default(8)
+  currentRound   Int         @default(0)
   createdAt      DateTime    @default(now())
 
   categoryId String?
@@ -62,6 +63,7 @@ model Player {
   pseudo   String
   isHost   Boolean  @default(false)
   seat     Int?
+  ready    Boolean  @default(false)
   joinedAt DateTime @default(now())
 
   lobbyId String
