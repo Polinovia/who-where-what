@@ -1,4 +1,9 @@
-import type { CreateLobbyInput, JoinLobbyInput } from "@/lib/validation/lobby";
+import type {
+  CreateLobbyInput,
+  JoinLobbyInput,
+  SetReadyInput,
+  SubmitAnswerInput,
+} from "@/lib/validation/lobby";
 import type { AddFriendInput } from "@/lib/validation/friends";
 
 type Lobby = {
@@ -8,8 +13,16 @@ type Lobby = {
   status: "LOBBY" | "IN_PROGRESS" | "FINISHED";
   maxPlayers: number;
   totalQuestions: number;
+  currentRound: number;
   categoryId: string | null;
-  players: { id: string; pseudo: string; isHost: boolean }[];
+  players: {
+    id: string;
+    pseudo: string;
+    isHost: boolean;
+    ready: boolean;
+    seat: number | null;
+    userId: string | null;
+  }[];
 };
 
 async function parseJson<T>(response: Response): Promise<T> {
@@ -43,6 +56,50 @@ export async function getLobby(code: string) {
   return parseJson<{ lobby: Lobby }>(res);
 }
 
+export async function setReady(code: string, input: SetReadyInput) {
+  const res = await fetch(`/api/lobby/${code}/ready`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return parseJson<{ lobby: Lobby }>(res);
+}
+
+type CurrentQuestion =
+  | { status: "answer"; round: number; totalQuestions: number; storyId: string; question: { id: string; text: string } }
+  | { status: "waiting"; round: number; totalQuestions: number }
+  | { status: "finished" };
+
+export async function getCurrentQuestion(code: string, playerId: string) {
+  const res = await fetch(`/api/lobby/${code}/question?playerId=${encodeURIComponent(playerId)}`);
+  return parseJson<CurrentQuestion>(res);
+}
+
+export async function submitAnswer(code: string, input: SubmitAnswerInput) {
+  const res = await fetch(`/api/lobby/${code}/answer`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return parseJson<{ status: "ok" }>(res);
+}
+
+type FinishedStory = {
+  id: string;
+  starterPlayer: { id: string; pseudo: string };
+  answers: {
+    order: number;
+    text: string;
+    question: { text: string };
+    player: { id: string; pseudo: string };
+  }[];
+};
+
+export async function getFinishedStories(code: string) {
+  const res = await fetch(`/api/lobby/${code}/stories`);
+  return parseJson<{ stories: FinishedStory[] }>(res);
+}
+
 type Category = { id: string; name: string };
 
 export async function listCategories() {
@@ -64,4 +121,16 @@ export async function addFriend(input: AddFriendInput) {
     body: JSON.stringify(input),
   });
   return parseJson<{ friend: Friend }>(res);
+}
+
+export async function kickPlayer(
+  code: string,
+  input: { requesterPlayerId: string; targetPlayerId: string },
+) {
+  const res = await fetch(`/api/lobby/${code}/kick`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return parseJson<{ lobby: Lobby }>(res);
 }
