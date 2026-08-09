@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/db/prisma";
 import { AchievementType } from "@/lib/generated/prisma/enums";
-import { ACCOMPLICE_THRESHOLD } from "@/lib/achievement-info";
+import {
+  ACCOMPLICE_THRESHOLD,
+  CROWD_PLEASER_THRESHOLD,
+  SOCIAL_BUTTERFLY_THRESHOLD,
+  STORYTELLER_THRESHOLD,
+  WORDSMITH_THRESHOLD,
+} from "@/lib/achievement-info";
 
 export async function unlockAchievement(
   userId: string,
@@ -36,12 +42,27 @@ export async function checkGameFinishedAchievements(lobbyId: string) {
   const userIds = lobby.players.map((p) => p.userId!).filter(Boolean);
   if (userIds.length === 0) return;
 
-  await Promise.all(userIds.map((userId) => unlockAchievement(userId, "FIRST_STORY")));
+  await Promise.all(
+    userIds.map(async (userId) => {
+      await unlockAchievement(userId, "FIRST_STORY");
+      await checkStoryteller(userId);
+      await checkWordsmith(userId);
+    }),
+  );
 
   for (let i = 0; i < userIds.length; i++) {
     for (let j = i + 1; j < userIds.length; j++) {
       await checkAccomplice(userIds[i], userIds[j]);
     }
+  }
+}
+
+// Called after a friend is added: unlocks "social butterfly" once a user
+// has enough friends.
+export async function checkSocialButterflyAchievement(userId: string) {
+  const friendsCount = await prisma.friendship.count({ where: { userId } });
+  if (friendsCount >= SOCIAL_BUTTERFLY_THRESHOLD) {
+    await unlockAchievement(userId, "SOCIAL_BUTTERFLY");
   }
 }
 
@@ -56,6 +77,34 @@ export async function checkStoryLikedAchievement(storyId: string) {
   if (!userId) return;
 
   await unlockAchievement(userId, "STORY_LIKED");
+  await checkCrowdPleaser(userId);
+}
+
+async function checkStoryteller(userId: string) {
+  const finishedGames = await prisma.lobby.count({
+    where: { status: "FINISHED", players: { some: { userId } } },
+  });
+  if (finishedGames >= STORYTELLER_THRESHOLD) {
+    await unlockAchievement(userId, "STORYTELLER");
+  }
+}
+
+async function checkWordsmith(userId: string) {
+  const answersWritten = await prisma.answer.count({
+    where: { player: { userId } },
+  });
+  if (answersWritten >= WORDSMITH_THRESHOLD) {
+    await unlockAchievement(userId, "WORDSMITH");
+  }
+}
+
+async function checkCrowdPleaser(userId: string) {
+  const likesReceived = await prisma.storyLike.count({
+    where: { story: { starterPlayer: { userId } } },
+  });
+  if (likesReceived >= CROWD_PLEASER_THRESHOLD) {
+    await unlockAchievement(userId, "CROWD_PLEASER");
+  }
 }
 
 async function checkAccomplice(userIdA: string, userIdB: string) {
