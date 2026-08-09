@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Caveat, Permanent_Marker, Playfair_Display } from "next/font/google";
 import { Providers } from "./providers";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,11 +36,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="fr"
+      lang="en"
       className={`${geistSans.variable} ${caveat.variable} ${marker.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        <Providers>
+          <LanguageSwitcher />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -7,12 +7,14 @@ import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getLobby, setReady, kickPlayer, addFriend, startLobbyNow } from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export default function LobbyWaitingRoomPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const [copied, setCopied] = useState(false);
   const [addedFriendIds, setAddedFriendIds] = useState<string[]>([]);
@@ -50,7 +52,7 @@ export default function LobbyWaitingRoomPage() {
     onSuccess: ({ lobby }) => {
       queryClient.setQueryData(["lobby", code], { lobby });
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   const kickMutation = useMutation({
@@ -59,7 +61,7 @@ export default function LobbyWaitingRoomPage() {
     onSuccess: ({ lobby }) => {
       queryClient.setQueryData(["lobby", code], { lobby });
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   const startMutation = useMutation({
@@ -67,7 +69,7 @@ export default function LobbyWaitingRoomPage() {
     onSuccess: ({ lobby }) => {
       queryClient.setQueryData(["lobby", code], { lobby });
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   const addFriendMutation = useMutation({
@@ -75,7 +77,7 @@ export default function LobbyWaitingRoomPage() {
     onSuccess: (_, userId) => {
       setAddedFriendIds((current) => [...current, userId]);
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   if (!identity) return null;
@@ -99,7 +101,7 @@ export default function LobbyWaitingRoomPage() {
 
         <Link
           href="/"
-          aria-label="Quitter"
+          aria-label={t.common.quit}
           className="absolute left-8 top-12 text-stone-700 hover:text-stone-900"
         >
           ←
@@ -114,7 +116,7 @@ export default function LobbyWaitingRoomPage() {
         {me?.isHost && (
           <div className="mt-6 flex flex-col items-center">
             <span className="font-[family-name:var(--font-serif)] text-xs uppercase tracking-[0.2em] text-stone-500">
-              Lobby code
+              {t.waitingRoom.lobbyCode}
             </span>
             <button
               type="button"
@@ -144,7 +146,9 @@ export default function LobbyWaitingRoomPage() {
                 )}
               </span>
             </button>
-            <span className="text-xs text-stone-400">{copied ? "Copied!" : "Tap to copy"}</span>
+            <span className="text-xs text-stone-400">
+              {copied ? t.waitingRoom.copied : t.waitingRoom.tapToCopy}
+            </span>
           </div>
         )}
 
@@ -171,10 +175,10 @@ export default function LobbyWaitingRoomPage() {
                 <div className="flex items-center gap-2">
                   <span className="font-[family-name:var(--font-serif)] text-stone-800">
                     {player.pseudo}
-                    {isSelf && " (you)"}
+                    {isSelf && t.waitingRoom.you}
                   </span>
                   {player.isHost && (
-                    <span className="text-xs text-stone-500">host</span>
+                    <span className="text-xs text-stone-500">{t.waitingRoom.host}</span>
                   )}
                 </div>
 
@@ -186,17 +190,17 @@ export default function LobbyWaitingRoomPage() {
                       onClick={() => canAddFriend && addFriendMutation.mutate(player.userId!)}
                       title={
                         !isLoggedIn
-                          ? "Log in to add friends"
+                          ? t.waitingRoom.logInToAddFriends
                           : alreadyFriends
-                            ? "Friend added"
-                            : "Add friend"
+                            ? t.waitingRoom.friendAdded
+                            : t.waitingRoom.addFriend
                       }
                       aria-label={
                         !isLoggedIn
-                          ? "Log in to add friends"
+                          ? t.waitingRoom.logInToAddFriends
                           : alreadyFriends
-                            ? "Friend added"
-                            : "Add friend"
+                            ? t.waitingRoom.friendAdded
+                            : t.waitingRoom.addFriend
                       }
                       className={`flex h-6 w-6 items-center justify-center rounded-full border text-sm leading-none transition-colors ${
                         !isLoggedIn
@@ -215,14 +219,14 @@ export default function LobbyWaitingRoomPage() {
                       onClick={() => kickMutation.mutate(player.id)}
                       className="text-sm text-red-500 hover:text-red-700"
                     >
-                      kick
+                      {t.waitingRoom.kick}
                     </button>
                   )}
                   <span
                     className={`h-2.5 w-2.5 rounded-full ${
                       player.ready ? "bg-green-600" : "bg-amber-400"
                     }`}
-                    aria-label={player.ready ? "Ready" : "Not ready"}
+                    aria-label={player.ready ? t.waitingRoom.readyLabel : t.waitingRoom.notReadyLabel}
                   />
                 </div>
               </li>
@@ -243,11 +247,11 @@ export default function LobbyWaitingRoomPage() {
           {me?.ready && (
             <span className="h-2 w-2 animate-pulse rounded-full bg-amber-500" aria-hidden />
           )}
-          {me?.ready ? "Waiting for other players…" : "Ready"}
+          {me?.ready ? t.waitingRoom.waitingForOthers : t.waitingRoom.readyButton}
         </button>
 
         <p className="mt-4 text-center font-[family-name:var(--font-serif)] italic text-sm text-stone-500">
-          The story starts once everyone is ready.
+          {t.waitingRoom.storyStartsHint}
         </p>
 
         {me?.isHost && (lobby?.players.length ?? 0) >= 2 && (
@@ -257,7 +261,7 @@ export default function LobbyWaitingRoomPage() {
             disabled={startMutation.isPending}
             className="mt-3 h-10 w-full rounded-xl border border-stone-300 text-sm text-stone-600 transition-colors hover:bg-stone-100 disabled:opacity-50"
           >
-            {startMutation.isPending ? "Starting..." : "Start now (skip waiting for ready)"}
+            {startMutation.isPending ? t.waitingRoom.starting : t.waitingRoom.startNow}
           </button>
         )}
       </div>

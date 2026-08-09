@@ -5,11 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCurrentQuestion, getLobby, kickPlayer, submitAnswer } from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export default function PlayPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const [text, setText] = useState("");
   const [submittedRound, setSubmittedRound] = useState<number | null>(null);
@@ -65,14 +67,14 @@ export default function PlayPage() {
 
   const submitMutation = useMutation({
     mutationFn: () => {
-      if (data?.status !== "answer") throw new Error("Erreur inattendue");
+      if (data?.status !== "answer") throw new Error(t.common.unexpectedError);
       return submitAnswer(code, { playerId: identity!.playerId, text });
     },
     onSuccess: () => {
       if (data?.status === "answer") setSubmittedRound(data.round);
       queryClient.invalidateQueries({ queryKey: ["question", code, identity?.playerId] });
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   if (!identity || !data) return null;
@@ -93,21 +95,21 @@ export default function PlayPage() {
 
         {round !== null && totalQuestions !== null && (
           <p className="text-center font-[family-name:var(--font-serif)] text-sm text-stone-500">
-            Question {round + 1} / {totalQuestions}
+            {t.play.question(round + 1, totalQuestions)}
           </p>
         )}
 
         {isWaiting ? (
           <>
             <h1 className="mt-4 text-center font-[family-name:var(--font-marker)] text-2xl text-stone-900">
-              Waiting for the others...
+              {t.play.waitingTitle}
             </h1>
             <p className="mt-2 text-center font-[family-name:var(--font-serif)] italic text-stone-600">
-              The story continues once everyone has answered.
+              {t.play.waitingSubtitle}
             </p>
             {data.status === "waiting" && data.waitingOn.length > 0 && (
               <p className="mt-4 text-center font-[family-name:var(--font-serif)] text-sm text-stone-500">
-                Still writing: {data.waitingOn.join(", ")}
+                {t.play.stillWriting(data.waitingOn.join(", "))}
               </p>
             )}
           </>
@@ -131,7 +133,7 @@ export default function PlayPage() {
               onChange={(e) => setText(e.target.value)}
               maxLength={120}
               rows={3}
-              placeholder="Your answer"
+              placeholder={t.play.answerPlaceholder}
               className="resize-none rounded-xl border border-stone-300 px-4 py-3 text-stone-800 outline-none focus:border-stone-500"
             />
 
@@ -142,7 +144,7 @@ export default function PlayPage() {
               disabled={submitMutation.isPending}
               className="h-12 rounded-xl bg-[#33261c] text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
             >
-              {submitMutation.isPending ? "Sending..." : "Submit"}
+              {submitMutation.isPending ? t.play.sending : t.play.submit}
             </button>
           </form>
         ) : null}
@@ -150,7 +152,7 @@ export default function PlayPage() {
         {me?.isHost && (
           <div className="mt-8 border-t border-stone-200 pt-4">
             <p className="text-center font-[family-name:var(--font-serif)] text-xs uppercase tracking-[0.2em] text-stone-400">
-              Host: someone stuck?
+              {t.play.hostSomeoneStuck}
             </p>
             <ul className="mt-2 flex flex-col gap-1">
               {lobby?.players
@@ -163,7 +165,7 @@ export default function PlayPage() {
                       onClick={() => kickMutation.mutate(p.id)}
                       className="text-red-500 hover:text-red-700"
                     >
-                      remove
+                      {t.play.remove}
                     </button>
                   </li>
                 ))}

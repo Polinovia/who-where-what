@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 import { createLobby, getFinishedStories, getLobby, likeStory } from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, savePlayerIdentity, subscribePlayerIdentity } from "@/lib/player-identity";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 function toSentence(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -16,6 +17,7 @@ export default function ResultsPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const identity = useSyncExternalStore(
     subscribePlayerIdentity,
@@ -69,7 +71,7 @@ export default function ResultsPage() {
       savePlayerIdentity(lobby.code, { playerId: player.id, pseudo: player.pseudo });
       router.push(`/lobby/${lobby.code}`);
     },
-    onError: (err) => setPlayAgainError(err instanceof Error ? err.message : "Erreur inattendue"),
+    onError: (err) => setPlayAgainError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   useEffect(() => {
@@ -84,12 +86,12 @@ export default function ResultsPage() {
     <div className="flex flex-1 items-center justify-center bg-[#e8e1d0] px-4 py-16">
       <div className="w-full max-w-2xl">
         <h1 className="text-center font-[family-name:var(--font-marker)] text-3xl text-stone-900">
-          The stories
+          {t.results.title}
         </h1>
 
         {isError && (
           <p className="mt-4 text-center text-sm text-red-600">
-            The stories aren&apos;t ready yet.
+            {t.results.notReady}
           </p>
         )}
 
@@ -105,7 +107,7 @@ export default function ResultsPage() {
               />
 
               <p className="text-center font-[family-name:var(--font-serif)] text-sm text-stone-500">
-                {story.starterPlayer.pseudo}&apos;s story
+                {t.results.storyOf(story.starterPlayer.pseudo)}
               </p>
 
               <p className="mt-4 font-[family-name:var(--font-serif)] leading-relaxed text-stone-800">
@@ -136,7 +138,7 @@ export default function ResultsPage() {
             href="/"
             className="h-12 rounded-xl border border-stone-300 px-8 leading-[3rem] text-stone-700 transition-colors hover:bg-stone-100"
           >
-            Back to home
+            {t.results.backToHome}
           </Link>
           <button
             type="button"
@@ -144,7 +146,7 @@ export default function ResultsPage() {
             onClick={() => playAgainMutation.mutate()}
             className="h-12 rounded-xl bg-[#33261c] px-8 text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
           >
-            {playAgainMutation.isPending ? "Creating..." : "Play again"}
+            {playAgainMutation.isPending ? t.results.creating : t.results.playAgain}
           </button>
         </div>
       </div>

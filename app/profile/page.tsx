@@ -7,12 +7,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfile, listAchievements, updateProfile } from "@/lib/api-client";
 import { ACHIEVEMENT_INFO } from "@/lib/achievement-info";
 import { getLevelProgress } from "@/lib/player-level";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 const ALL_TYPES = Object.keys(ACHIEVEMENT_INFO) as (keyof typeof ACHIEVEMENT_INFO)[];
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const { data: profileData } = useQuery({
     queryKey: ["profile"],
@@ -40,7 +42,7 @@ export default function ProfilePage() {
       );
       setEditing(false);
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   const unlockedCount = achievementsData?.achievements.length ?? 0;
@@ -58,22 +60,22 @@ export default function ProfilePage() {
 
         <Link
           href="/"
-          aria-label="Back"
+          aria-label={t.common.back}
           className="absolute left-8 top-12 text-stone-700 hover:text-stone-900"
         >
           ←
         </Link>
 
         <h1 className="text-center font-[family-name:var(--font-marker)] text-3xl text-stone-900">
-          Profile
+          {t.profile.title}
         </h1>
 
         {status !== "loading" && !session?.user ? (
           <p className="mt-8 text-center font-[family-name:var(--font-serif)] italic text-stone-600">
             <Link href="/login" className="underline hover:text-stone-900">
-              Log in
+              {t.profile.logIn}
             </Link>{" "}
-            to see your profile.
+            {t.profile.logInToSee}
           </p>
         ) : user ? (
           <>
@@ -97,7 +99,7 @@ export default function ProfilePage() {
               {level && (
                 <div className="mt-1 flex flex-col items-center gap-1">
                   <span className="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs text-stone-600">
-                    Level {level.level}
+                    {t.profile.level(level.level)}
                   </span>
                   <div className="h-1.5 w-24 overflow-hidden rounded-full bg-stone-200">
                     <div
@@ -118,7 +120,7 @@ export default function ProfilePage() {
                   setTimeout(() => setCopied(false), 1500);
                 }}
                 className="mt-1 rounded-full border border-stone-300 px-3 py-1 text-xs tracking-wide text-stone-500 hover:bg-stone-100"
-                title="Copy player ID"
+                title={t.profile.copyPlayerId}
               >
                 ID: {user.playerCode} {copied ? "✓" : ""}
               </button>
@@ -129,19 +131,19 @@ export default function ProfilePage() {
                     <p className="font-[family-name:var(--font-serif)] text-lg text-stone-800">
                       {stats.friendsCount}
                     </p>
-                    <p className="text-xs text-stone-500 underline">Friends</p>
+                    <p className="text-xs text-stone-500 underline">{t.profile.friends}</p>
                   </Link>
                   <div>
                     <p className="font-[family-name:var(--font-serif)] text-lg text-stone-800">
                       {stats.gamesPlayed}
                     </p>
-                    <p className="text-xs text-stone-500">Games played</p>
+                    <p className="text-xs text-stone-500">{t.profile.gamesPlayed}</p>
                   </div>
                   <Link href="/achievements" className="hover:opacity-70">
                     <p className="font-[family-name:var(--font-serif)] text-lg text-stone-800">
                       {unlockedCount}/{ALL_TYPES.length}
                     </p>
-                    <p className="text-xs text-stone-500 underline">Achievements</p>
+                    <p className="text-xs text-stone-500 underline">{t.profile.achievements}</p>
                   </Link>
                 </div>
               )}
@@ -151,7 +153,7 @@ export default function ProfilePage() {
               <div className="mt-6 flex flex-col gap-3">
                 <label className="flex flex-col gap-1.5">
                   <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-                    Avatar URL
+                    {t.profile.avatarUrl}
                   </span>
                   <input
                     value={avatarUrl}
@@ -163,14 +165,14 @@ export default function ProfilePage() {
 
                 <label className="flex flex-col gap-1.5">
                   <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-                    Bio
+                    {t.profile.bio}
                   </span>
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     maxLength={280}
                     rows={3}
-                    placeholder="Tell your friends about yourself"
+                    placeholder={t.profile.bioPlaceholder}
                     className="rounded-xl border border-stone-300 px-4 py-2 text-stone-800 outline-none focus:border-stone-500"
                   />
                 </label>
@@ -183,7 +185,7 @@ export default function ProfilePage() {
                     onClick={() => setEditing(false)}
                     className="h-11 flex-1 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-100"
                   >
-                    Cancel
+                    {t.profile.cancel}
                   </button>
                   <button
                     type="button"
@@ -194,14 +196,14 @@ export default function ProfilePage() {
                     }}
                     className="h-11 flex-1 rounded-xl bg-[#33261c] text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
                   >
-                    {updateProfileMutation.isPending ? "Saving..." : "Save"}
+                    {updateProfileMutation.isPending ? t.profile.saving : t.profile.save}
                   </button>
                 </div>
               </div>
             ) : (
               <div className="mt-6 flex flex-col items-center gap-2">
                 <p className="text-center font-[family-name:var(--font-serif)] italic text-stone-600">
-                  {user.bio || "No bio yet."}
+                  {user.bio || t.profile.noBioYet}
                 </p>
                 <button
                   type="button"
@@ -212,7 +214,7 @@ export default function ProfilePage() {
                   }}
                   className="text-sm text-stone-500 underline hover:text-stone-800"
                 >
-                  Edit profile
+                  {t.profile.editProfile}
                 </button>
               </div>
             )}

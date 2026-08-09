@@ -6,12 +6,14 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { createLobby, listCategories } from "@/lib/api-client";
 import { savePlayerIdentity } from "@/lib/player-identity";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 const QUESTION_PRESETS = [8, 10, 12] as const;
 
 export default function CreateLobbyPage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const { t } = useLanguage();
 
   const [pseudoOverride, setPseudoOverride] = useState<string | null>(null);
   const pseudo = pseudoOverride ?? session?.user?.name ?? "";
@@ -61,7 +63,7 @@ export default function CreateLobbyPage() {
       router.push(`/lobby/${lobby.code}`);
     } catch (err) {
       setLoading(false);
-      setError(err instanceof Error ? err.message : "Erreur inattendue");
+      setError(err instanceof Error ? err.message : t.common.unexpectedError);
     }
   }
 
@@ -75,30 +77,30 @@ export default function CreateLobbyPage() {
 
         <Link
           href="/"
-          aria-label="Quitter"
+          aria-label={t.common.quit}
           className="absolute left-8 top-12 text-stone-700 hover:text-stone-900"
         >
           ←
         </Link>
 
         <h1 className="text-center font-[family-name:var(--font-marker)] text-3xl text-stone-900">
-          Create lobby
+          {t.createLobby.title}
         </h1>
         <p className="mt-2 text-center font-[family-name:var(--font-serif)] italic text-stone-600">
-          Set up your story before you invite friends.
+          {t.createLobby.subtitle}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6">
           <label className="flex flex-col gap-1.5">
             <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-              Player Name
+              {t.createLobby.playerName}
             </span>
             <input
               required
               readOnly={!!session?.user?.name}
               value={pseudo}
               onChange={(e) => setPseudoOverride(e.target.value)}
-              placeholder="Your pseudo"
+              placeholder={t.createLobby.yourPseudo}
               className={`h-12 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500 ${
                 session?.user?.name ? "bg-stone-100" : ""
               }`}
@@ -107,26 +109,26 @@ export default function CreateLobbyPage() {
 
           <label className="flex flex-col gap-1.5">
             <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-              Game Name
+              {t.createLobby.gameName}
             </span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Optional"
+              placeholder={t.createLobby.optional}
               className="h-12 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
             />
           </label>
 
           <div className="flex flex-col gap-1.5">
             <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-              Number Of Players
+              {t.createLobby.numberOfPlayers}
             </span>
             <div className="flex h-12 items-center justify-between rounded-xl border border-stone-300 px-4">
               <button
                 type="button"
                 onClick={() => setMaxPlayers((n) => Math.max(2, n - 1))}
                 className="text-xl text-stone-500 hover:text-stone-900"
-                aria-label="Moins de joueurs"
+                aria-label={t.createLobby.fewerPlayers}
               >
                 −
               </button>
@@ -135,7 +137,7 @@ export default function CreateLobbyPage() {
                 type="button"
                 onClick={() => setMaxPlayers((n) => Math.min(12, n + 1))}
                 className="text-xl text-stone-500 hover:text-stone-900"
-                aria-label="Plus de joueurs"
+                aria-label={t.createLobby.morePlayers}
               >
                 +
               </button>
@@ -144,7 +146,7 @@ export default function CreateLobbyPage() {
 
           <div className="flex flex-col gap-1.5">
             <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-              Number Of Questions
+              {t.createLobby.numberOfQuestions}
             </span>
             <div className="flex gap-2">
               {QUESTION_PRESETS.map((preset) => (
@@ -173,7 +175,7 @@ export default function CreateLobbyPage() {
                     : "border-stone-300 text-stone-800 hover:bg-stone-100"
                 }`}
               >
-                Custom
+                {t.createLobby.custom}
               </button>
             </div>
             {customQuestions && (
@@ -190,7 +192,7 @@ export default function CreateLobbyPage() {
 
           <div className="flex flex-col gap-1.5">
             <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-              Language
+              {t.createLobby.language}
             </span>
             <div className="flex gap-2">
               {(["fr", "en"] as const).map((lang) => (
@@ -204,7 +206,7 @@ export default function CreateLobbyPage() {
                       : "border-stone-300 text-stone-800 hover:bg-stone-100"
                   }`}
                 >
-                  {lang === "fr" ? "Français" : "English"}
+                  {lang === "fr" ? t.createLobby.french : t.createLobby.english}
                 </button>
               ))}
             </div>
@@ -212,7 +214,7 @@ export default function CreateLobbyPage() {
 
           <label className="flex flex-col gap-1.5">
             <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-              Category
+              {t.createLobby.category}
             </span>
             <select
               value={categoryId}
@@ -234,7 +236,7 @@ export default function CreateLobbyPage() {
             disabled={loading}
             className="mt-2 h-12 rounded-xl bg-[#33261c] text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
           >
-            {loading ? "Création..." : "Create lobby"}
+            {loading ? t.createLobby.creating : t.createLobby.createLobby}
           </button>
         </form>
       </div>

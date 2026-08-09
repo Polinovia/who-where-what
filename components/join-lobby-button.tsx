@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export function JoinLobbyButton() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
 
@@ -23,7 +25,7 @@ export function JoinLobbyButton() {
         className="flex h-14 w-full items-center justify-center gap-2 rounded-xl border border-stone-300 text-lg text-stone-700 transition-colors hover:bg-stone-100"
       >
         <span aria-hidden>➝</span>
-        Join lobby
+        {t.joinLobbyButton.joinLobby}
       </button>
     );
   }
@@ -43,7 +45,7 @@ export function JoinLobbyButton() {
         disabled={code.trim().length !== 6}
         className="h-14 rounded-xl bg-[#33261c] px-6 text-lg text-stone-50 transition-colors hover:bg-[#241a13] disabled:cursor-not-allowed disabled:opacity-40"
       >
-        Go
+        {t.joinLobbyButton.go}
       </button>
     </form>
   );

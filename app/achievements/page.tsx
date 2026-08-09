@@ -4,12 +4,29 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { listAchievements } from "@/lib/api-client";
-import { ACHIEVEMENT_INFO } from "@/lib/achievement-info";
+import {
+  ACCOMPLICE_THRESHOLD,
+  ACHIEVEMENT_INFO,
+  CROWD_PLEASER_THRESHOLD,
+  SOCIAL_BUTTERFLY_THRESHOLD,
+  STORYTELLER_THRESHOLD,
+  WORDSMITH_THRESHOLD,
+} from "@/lib/achievement-info";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 const ALL_TYPES = Object.keys(ACHIEVEMENT_INFO) as (keyof typeof ACHIEVEMENT_INFO)[];
 
+const THRESHOLDS: Partial<Record<(typeof ALL_TYPES)[number], number>> = {
+  ACCOMPLICE: ACCOMPLICE_THRESHOLD,
+  STORYTELLER: STORYTELLER_THRESHOLD,
+  SOCIAL_BUTTERFLY: SOCIAL_BUTTERFLY_THRESHOLD,
+  CROWD_PLEASER: CROWD_PLEASER_THRESHOLD,
+  WORDSMITH: WORDSMITH_THRESHOLD,
+};
+
 export default function AchievementsPage() {
   const { data: session, status } = useSession();
+  const { t } = useLanguage();
 
   const { data: achievementsData } = useQuery({
     queryKey: ["achievements"],
@@ -29,27 +46,33 @@ export default function AchievementsPage() {
 
         <Link
           href="/profile"
-          aria-label="Back"
+          aria-label={t.common.back}
           className="absolute left-8 top-12 text-stone-700 hover:text-stone-900"
         >
           ←
         </Link>
 
         <h1 className="text-center font-[family-name:var(--font-marker)] text-3xl text-stone-900">
-          Achievements
+          {t.achievements.title}
         </h1>
 
         {status !== "loading" && !session?.user ? (
           <p className="mt-8 text-center font-[family-name:var(--font-serif)] italic text-stone-600">
             <Link href="/login" className="underline hover:text-stone-900">
-              Log in
+              {t.achievements.logIn}
             </Link>{" "}
-            to see your achievements.
+            {t.achievements.logInToSee}
           </p>
         ) : (
           <ul className="mt-8 flex flex-col gap-3">
             {ALL_TYPES.map((type) => {
-              const info = ACHIEVEMENT_INFO[type];
+              const Icon = ACHIEVEMENT_INFO[type].icon;
+              const info = t.achievementInfo[type];
+              const threshold = THRESHOLDS[type];
+              const description =
+                typeof info.description === "function"
+                  ? info.description(threshold!)
+                  : info.description;
               const unlocked = unlockedTypes.has(type);
               return (
                 <li
@@ -60,12 +83,12 @@ export default function AchievementsPage() {
                       : "border-stone-200 opacity-40 grayscale"
                   }`}
                 >
-                  <info.icon className="text-stone-700" size={24} />
+                  <Icon className="text-stone-700" size={24} />
                   <div>
                     <p className="font-[family-name:var(--font-serif)] text-stone-800">
                       {info.title}
                     </p>
-                    <p className="text-sm text-stone-500">{info.description}</p>
+                    <p className="text-sm text-stone-500">{description}</p>
                   </div>
                 </li>
               );

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export function HomeHeader() {
   const { data: session, status } = useSession();
+  const { t } = useLanguage();
 
   if (status === "loading") {
     return <header className="flex items-center justify-between">
@@ -17,17 +19,17 @@ export function HomeHeader() {
     return (
       <header className="flex items-center justify-between">
         <p className="font-[family-name:var(--font-script)] text-2xl text-stone-500">
-          Welcome back,{" "}
+          {t.home.welcomeBack}{" "}
           <Link href="/profile" className="underline hover:text-stone-900">
             {session.user.name}
           </Link>
         </p>
         <nav className="flex items-center gap-6 text-stone-600">
           <Link href="/friends" className="hover:text-stone-900">
-            Friends
+            {t.home.friends}
           </Link>
           <button onClick={() => signOut()} className="hover:text-stone-900">
-            Log out
+            {t.home.logOut}
           </button>
         </nav>
       </header>
@@ -37,14 +39,14 @@ export function HomeHeader() {
   return (
     <header className="flex items-center justify-between">
       <p className="font-[family-name:var(--font-script)] text-2xl text-stone-500">
-        Don&apos;t lose your stories
+        {t.home.dontLoseStories}
       </p>
       <nav className="flex items-center gap-6 text-stone-600">
         <Link href="/login" className="hover:text-stone-900">
-          Log in
+          {t.home.logIn}
         </Link>
         <Link href="/signup" className="hover:text-stone-900">
-          Sign in
+          {t.home.signIn}
         </Link>
       </nav>
     </header>

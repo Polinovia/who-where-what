@@ -1,8 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { JoinLobbyButton } from "@/components/join-lobby-button";
 import { HomeHeader } from "@/components/auth-nav";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export default function Home() {
+  const { t } = useLanguage();
+
   return (
     <div className="flex flex-1 items-center justify-center bg-[#e8e1d0] px-4 py-16">
       <div className="relative w-full max-w-3xl rounded-2xl bg-[#faf7f0] px-10 py-14 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.25)] sm:px-16 sm:py-16">
@@ -19,7 +24,7 @@ export default function Home() {
             WHO, WHERE, WHAT?
           </h1>
           <p className="mt-4 font-[family-name:var(--font-serif)] italic text-lg text-stone-600">
-            Create ridiculous stories with your friends.
+            {t.home.tagline}
           </p>
 
           <div className="mt-10 flex w-full max-w-md flex-col gap-4">
@@ -28,7 +33,7 @@ export default function Home() {
               className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#33261c] text-lg text-stone-50 shadow-md transition-colors hover:bg-[#241a13]"
             >
               <span aria-hidden>✎</span>
-              Create lobby
+              {t.home.createLobby}
             </Link>
 
             <JoinLobbyButton />
@@ -39,10 +44,10 @@ export default function Home() {
               href="/how-to-play"
               className="font-[family-name:var(--font-serif)] text-xl text-stone-800 hover:underline"
             >
-              How to play ?
+              {t.home.howToPlay}
             </Link>
             <p className="font-[family-name:var(--font-serif)] italic text-sm text-stone-500">
-              2 to 12 players
+              {t.home.players}
             </p>
           </div>
         </main>
@@ -52,7 +57,7 @@ export default function Home() {
             href="mailto:maximilien01993@gmail.com?subject=Who%2C%20Where%2C%20What%20feedback"
             className="font-[family-name:var(--font-script)] text-xl text-stone-500 hover:text-stone-700"
           >
-            Give me feedback
+            {t.home.feedback}
           </a>
         </footer>
       </div>

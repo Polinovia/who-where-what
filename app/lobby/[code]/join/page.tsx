@@ -6,11 +6,13 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { joinLobby } from "@/lib/api-client";
 import { savePlayerIdentity } from "@/lib/player-identity";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export default function JoinLobbyPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
   const { data: session } = useSession();
+  const { t } = useLanguage();
 
   const [pseudoOverride, setPseudoOverride] = useState<string | null>(null);
   const pseudo = pseudoOverride ?? session?.user?.name ?? "";
@@ -28,7 +30,7 @@ export default function JoinLobbyPage() {
       router.push(`/lobby/${lobby.code}`);
     } catch (err) {
       setLoading(false);
-      setError(err instanceof Error ? err.message : "Erreur inattendue");
+      setError(err instanceof Error ? err.message : t.common.unexpectedError);
     }
   }
 
@@ -42,24 +44,23 @@ export default function JoinLobbyPage() {
 
         <Link
           href="/"
-          aria-label="Quitter"
+          aria-label={t.common.quit}
           className="absolute left-8 top-12 text-stone-700 hover:text-stone-900"
         >
           ←
         </Link>
 
         <h1 className="text-center font-[family-name:var(--font-marker)] text-3xl text-stone-900">
-          Join lobby
+          {t.joinLobby.title}
         </h1>
         <p className="mt-2 text-center font-[family-name:var(--font-serif)] italic text-stone-600">
-          Enter the code your friend shared with you. Already playing? Use the
-          same name to rejoin.
+          {t.joinLobby.subtitle}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6">
           <label className="flex flex-col gap-1.5">
             <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-              Lobby Code
+              {t.joinLobby.lobbyCode}
             </span>
             <input
               readOnly
@@ -70,14 +71,14 @@ export default function JoinLobbyPage() {
 
           <label className="flex flex-col gap-1.5">
             <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-              Player Name
+              {t.joinLobby.playerName}
             </span>
             <input
               required
               readOnly={!!session?.user?.name}
               value={pseudo}
               onChange={(e) => setPseudoOverride(e.target.value)}
-              placeholder="Your pseudo"
+              placeholder={t.joinLobby.yourPseudo}
               className={`h-12 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500 ${
                 session?.user?.name ? "bg-stone-100" : ""
               }`}
@@ -91,7 +92,7 @@ export default function JoinLobbyPage() {
             disabled={loading}
             className="mt-2 h-12 rounded-xl bg-[#33261c] text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
           >
-            {loading ? "Joining..." : "Join lobby"}
+            {loading ? t.joinLobby.joining : t.joinLobby.joinLobby}
           </button>
         </form>
       </div>

@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { AuthCard } from "@/components/auth-card";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Email ou mot de passe incorrect");
+      setError(t.login.incorrectCredentials);
       return;
     }
 
@@ -36,12 +38,12 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthCard title="Log in" subtitle="Content de te revoir.">
+    <AuthCard title={t.login.title} subtitle={t.login.subtitle}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="email"
           required
-          placeholder="Email"
+          placeholder={t.login.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="h-12 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
@@ -49,7 +51,7 @@ export default function LoginPage() {
         <input
           type="password"
           required
-          placeholder="Mot de passe"
+          placeholder={t.login.passwordPlaceholder}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="h-12 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
@@ -62,14 +64,14 @@ export default function LoginPage() {
           disabled={loading}
           className="mt-2 h-12 rounded-xl bg-[#33261c] text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
         >
-          {loading ? "Connexion..." : "Log in"}
+          {loading ? t.login.connecting : t.login.logIn}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-stone-600">
-        Pas encore de compte ?{" "}
+        {t.login.noAccount}{" "}
         <Link href="/signup" className="font-medium text-stone-900 hover:underline">
-          Sign in
+          {t.login.signIn}
         </Link>
       </p>
     </AuthCard>

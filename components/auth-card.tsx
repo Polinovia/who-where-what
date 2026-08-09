@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export function AuthCard({
   title,
@@ -9,6 +10,8 @@ export function AuthCard({
   subtitle: string;
   children: React.ReactNode;
 }) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex flex-1 items-center justify-center bg-[#e8e1d0] px-4 py-16">
       <div className="relative w-full max-w-md rounded-2xl bg-[#faf7f0] px-10 py-14 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.25)]">
@@ -19,7 +22,7 @@ export function AuthCard({
 
         <Link
           href="/"
-          aria-label="Quitter"
+          aria-label={t.common.quit}
           className="absolute left-8 top-12 text-stone-700 hover:text-stone-900"
         >
           ←

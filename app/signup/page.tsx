@@ -6,9 +6,11 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { AuthCard } from "@/components/auth-card";
 import { registerSchema } from "@/lib/validation/auth";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +23,7 @@ export default function SignupPage() {
 
     const parsed = registerSchema.safeParse({ name, email, password });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Formulaire invalide");
+      setError(parsed.error.issues[0]?.message ?? t.signup.invalidForm);
       return;
     }
 
@@ -36,7 +38,7 @@ export default function SignupPage() {
 
     if (!res.ok) {
       setLoading(false);
-      setError(data?.error?.formErrors?.[0] ?? data?.error ?? "Erreur inattendue");
+      setError(data?.error?.formErrors?.[0] ?? data?.error ?? t.common.unexpectedError);
       return;
     }
 
@@ -58,11 +60,11 @@ export default function SignupPage() {
   }
 
   return (
-    <AuthCard title="Sign in" subtitle="Crée ton compte pour ne plus perdre tes histoires.">
+    <AuthCard title={t.signup.title} subtitle={t.signup.subtitle}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           required
-          placeholder="Pseudo"
+          placeholder={t.signup.namePlaceholder}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="h-12 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
@@ -70,7 +72,7 @@ export default function SignupPage() {
         <input
           type="email"
           required
-          placeholder="Email"
+          placeholder={t.signup.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="h-12 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
@@ -78,7 +80,7 @@ export default function SignupPage() {
         <input
           type="password"
           required
-          placeholder="Mot de passe (8 caractères min.)"
+          placeholder={t.signup.passwordPlaceholder}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="h-12 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
@@ -91,14 +93,14 @@ export default function SignupPage() {
           disabled={loading}
           className="mt-2 h-12 rounded-xl bg-[#33261c] text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
         >
-          {loading ? "Création..." : "Créer mon compte"}
+          {loading ? t.signup.creating : t.signup.createAccount}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-stone-600">
-        Déjà un compte ?{" "}
+        {t.signup.alreadyAccount}{" "}
         <Link href="/login" className="font-medium text-stone-900 hover:underline">
-          Log in
+          {t.signup.logIn}
         </Link>
       </p>
     </AuthCard>

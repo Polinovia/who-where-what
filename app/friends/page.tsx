@@ -5,10 +5,12 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addFriend, listFriends, searchPlayerByCode } from "@/lib/api-client";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export default function FriendsPage() {
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const [mode, setMode] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
@@ -27,7 +29,7 @@ export default function FriendsPage() {
       setEmail("");
       queryClient.invalidateQueries({ queryKey: ["friends"] });
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   const addByCodeMutation = useMutation({
@@ -39,7 +41,7 @@ export default function FriendsPage() {
       setCode("");
       queryClient.invalidateQueries({ queryKey: ["friends"] });
     },
-    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   return (
@@ -52,22 +54,22 @@ export default function FriendsPage() {
 
         <Link
           href="/"
-          aria-label="Back"
+          aria-label={t.common.back}
           className="absolute left-8 top-12 text-stone-700 hover:text-stone-900"
         >
           ←
         </Link>
 
         <h1 className="text-center font-[family-name:var(--font-marker)] text-3xl text-stone-900">
-          Friends
+          {t.friends.title}
         </h1>
 
         {status !== "loading" && !session?.user ? (
           <p className="mt-8 text-center font-[family-name:var(--font-serif)] italic text-stone-600">
             <Link href="/login" className="underline hover:text-stone-900">
-              Log in
+              {t.friends.logIn}
             </Link>{" "}
-            to manage your friends.
+            {t.friends.logInToManage}
           </p>
         ) : (
           <>
@@ -81,7 +83,7 @@ export default function FriendsPage() {
                     : "border-stone-300 text-stone-700 hover:bg-stone-100"
                 }`}
               >
-                By email
+                {t.friends.byEmail}
               </button>
               <button
                 type="button"
@@ -92,7 +94,7 @@ export default function FriendsPage() {
                     : "border-stone-300 text-stone-700 hover:bg-stone-100"
                 }`}
               >
-                By player ID
+                {t.friends.byPlayerId}
               </button>
             </div>
 
@@ -110,7 +112,7 @@ export default function FriendsPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Friend's email"
+                  placeholder={t.friends.friendEmailPlaceholder}
                   className="h-12 flex-1 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
                 />
                 <button
@@ -118,7 +120,7 @@ export default function FriendsPage() {
                   disabled={addFriendMutation.isPending}
                   className="h-12 rounded-xl bg-[#33261c] px-5 text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
                 >
-                  Add
+                  {t.friends.add}
                 </button>
               </form>
             ) : (
@@ -134,7 +136,7 @@ export default function FriendsPage() {
                   required
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  placeholder="Friend's player ID"
+                  placeholder={t.friends.friendIdPlaceholder}
                   className="h-12 flex-1 rounded-xl border border-stone-300 px-4 uppercase text-stone-800 outline-none focus:border-stone-500"
                 />
                 <button
@@ -142,7 +144,7 @@ export default function FriendsPage() {
                   disabled={addByCodeMutation.isPending}
                   className="h-12 rounded-xl bg-[#33261c] px-5 text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
                 >
-                  Add
+                  {t.friends.add}
                 </button>
               </form>
             )}
@@ -152,7 +154,7 @@ export default function FriendsPage() {
             <ul className="mt-8 flex flex-col gap-2">
               {data?.friends.length === 0 && (
                 <p className="text-center font-[family-name:var(--font-serif)] italic text-stone-500">
-                  No friends yet — add one above.
+                  {t.friends.noFriendsYet}
                 </p>
               )}
               {data?.friends.map((friend) => (
