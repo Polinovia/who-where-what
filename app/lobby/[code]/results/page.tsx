@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { getFinishedStories } from "@/lib/api-client";
-import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createLobby, getFinishedStories, getLobby } from "@/lib/api-client";
+import { getPlayerIdentity, getPlayerIdentitySnapshot, savePlayerIdentity, subscribePlayerIdentity } from "@/lib/player-identity";
 
 export default function ResultsPage() {
   const { code } = useParams<{ code: string }>();
@@ -21,6 +21,33 @@ export default function ResultsPage() {
     queryKey: ["stories", code],
     queryFn: () => getFinishedStories(code),
     enabled: !!identity,
+  });
+
+  const { data: lobbyData } = useQuery({
+    queryKey: ["lobby", code],
+    queryFn: () => getLobby(code),
+    enabled: !!identity,
+  });
+
+  const [playAgainError, setPlayAgainError] = useState<string | null>(null);
+
+  const playAgainMutation = useMutation({
+    mutationFn: () => {
+      const lobby = lobbyData!.lobby;
+      return createLobby({
+        pseudo: identity!.pseudo,
+        name: lobby.name ?? undefined,
+        maxPlayers: lobby.maxPlayers,
+        totalQuestions: lobby.totalQuestions,
+        categoryId: lobby.categoryId ?? undefined,
+      });
+    },
+    onSuccess: ({ lobby }) => {
+      const player = lobby.players.find((p) => p.pseudo === identity!.pseudo)!;
+      savePlayerIdentity(lobby.code, { playerId: player.id, pseudo: player.pseudo });
+      router.push(`/lobby/${lobby.code}`);
+    },
+    onError: (err) => setPlayAgainError(err instanceof Error ? err.message : "Erreur inattendue"),
   });
 
   useEffect(() => {
@@ -79,13 +106,25 @@ export default function ResultsPage() {
           ))}
         </div>
 
-        <div className="mt-10 flex justify-center">
+        {playAgainError && (
+          <p className="mt-4 text-center text-sm text-red-600">{playAgainError}</p>
+        )}
+
+        <div className="mt-10 flex justify-center gap-4">
           <Link
             href="/"
-            className="h-12 rounded-xl bg-[#33261c] px-8 leading-[3rem] text-stone-50 transition-colors hover:bg-[#241a13]"
+            className="h-12 rounded-xl border border-stone-300 px-8 leading-[3rem] text-stone-700 transition-colors hover:bg-stone-100"
           >
             Back to home
           </Link>
+          <button
+            type="button"
+            disabled={!lobbyData || playAgainMutation.isPending}
+            onClick={() => playAgainMutation.mutate()}
+            className="h-12 rounded-xl bg-[#33261c] px-8 text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
+          >
+            {playAgainMutation.isPending ? "Creating..." : "Play again"}
+          </button>
         </div>
       </div>
     </div>
