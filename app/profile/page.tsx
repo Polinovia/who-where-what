@@ -116,12 +116,12 @@ export default function ProfilePage() {
 
               {stats && (
                 <div className="mt-4 flex gap-6 text-center">
-                  <div>
+                  <Link href="/friends" className="hover:opacity-70">
                     <p className="font-[family-name:var(--font-serif)] text-lg text-stone-800">
                       {stats.friendsCount}
                     </p>
-                    <p className="text-xs text-stone-500">Friends</p>
-                  </div>
+                    <p className="text-xs text-stone-500 underline">Friends</p>
+                  </Link>
                   <div>
                     <p className="font-[family-name:var(--font-serif)] text-lg text-stone-800">
                       {stats.gamesPlayed}

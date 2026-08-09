@@ -17,14 +17,14 @@ export function HomeHeader() {
     return (
       <header className="flex items-center justify-between">
         <p className="font-[family-name:var(--font-script)] text-2xl text-stone-500">
-          Welcome back, {session.user.name}
+          Welcome back,{" "}
+          <Link href="/profile" className="underline hover:text-stone-900">
+            {session.user.name}
+          </Link>
         </p>
         <nav className="flex items-center gap-6 text-stone-600">
           <Link href="/friends" className="hover:text-stone-900">
             Friends
-          </Link>
-          <Link href="/profile" className="hover:text-stone-900">
-            Profile
           </Link>
           <button onClick={() => signOut()} className="hover:text-stone-900">
             Log out
