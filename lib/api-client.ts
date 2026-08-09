@@ -15,6 +15,7 @@ type Lobby = {
   totalQuestions: number;
   currentRound: number;
   categoryId: string | null;
+  language: string;
   players: {
     id: string;
     pseudo: string;
@@ -103,8 +104,8 @@ export async function getFinishedStories(code: string) {
 
 type Category = { id: string; name: string };
 
-export async function listCategories() {
-  const res = await fetch("/api/categories");
+export async function listCategories(language: string) {
+  const res = await fetch(`/api/categories?language=${encodeURIComponent(language)}`);
   return parseJson<{ categories: Category[] }>(res);
 }
 

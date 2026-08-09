@@ -18,12 +18,15 @@ export const maxPlayersSchema = z
   .min(2, "2 joueurs minimum")
   .max(12, "12 joueurs maximum");
 
+export const languageSchema = z.enum(["fr", "en"]);
+
 export const createLobbySchema = z.object({
   pseudo: pseudoSchema,
   name: z.string().trim().min(1).max(40).optional(),
   maxPlayers: maxPlayersSchema.optional().default(12),
   totalQuestions: totalQuestionsSchema.optional().default(8),
   categoryId: z.string().min(1).optional(),
+  language: languageSchema.optional().default("fr"),
 });
 export type CreateLobbyInput = z.infer<typeof createLobbySchema>;
 

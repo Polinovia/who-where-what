@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { pseudo, name, maxPlayers, totalQuestions, categoryId } = parsed.data;
+  const { pseudo, name, maxPlayers, totalQuestions, categoryId, language } = parsed.data;
 
   const category = categoryId
     ? await prisma.category.findUnique({ where: { id: categoryId } })
@@ -27,7 +27,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Catégorie introuvable" }, { status: 404 });
   }
 
-  const questionCount = await prisma.question.count({ where: { categoryId: category.id } });
+  const questionCount = await prisma.question.count({
+    where: { categoryId: category.id, language },
+  });
+  if (questionCount === 0) {
+    return NextResponse.json(
+      { error: "Cette catégorie n'est pas disponible dans cette langue" },
+      { status: 400 },
+    );
+  }
   if (totalQuestions > questionCount) {
     return NextResponse.json(
       { error: `Cette catégorie n'a que ${questionCount} questions` },
@@ -46,6 +54,7 @@ export async function POST(request: NextRequest) {
           maxPlayers,
           totalQuestions,
           categoryId: category.id,
+          language,
           players: {
             create: { pseudo, isHost: true, userId: session?.user?.id },
           },

@@ -5,6 +5,7 @@ type LobbyForTurn = {
   id: string;
   currentRound: number;
   categoryId: string | null;
+  language: string;
 };
 
 type PlayerForTurn = {
@@ -32,7 +33,7 @@ export async function resolveCurrentTurn(
     }),
     lobby.categoryId
       ? prisma.question.findFirst({
-          where: { categoryId: lobby.categoryId, order: round + 1 },
+          where: { categoryId: lobby.categoryId, language: lobby.language, order: round + 1 },
         })
       : null,
   ]);

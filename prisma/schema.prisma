@@ -49,6 +49,7 @@ model Lobby {
   maxPlayers     Int         @default(12)
   totalQuestions Int         @default(8)
   currentRound   Int         @default(0)
+  language       String      @default("fr")
   createdAt      DateTime    @default(now())
 
   categoryId String?
@@ -90,13 +91,14 @@ model Question {
   id         String   @id @default(cuid())
   text       String
   order      Int
+  language   String   @default("fr")
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
   answers Answer[]
 
-  @@unique([categoryId, order])
+  @@unique([categoryId, language, order])
 }
 
 // One story sheet per player, passed around the table question by question.

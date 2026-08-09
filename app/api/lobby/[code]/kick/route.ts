@@ -82,7 +82,7 @@ export async function POST(
 
     for (let round = lobby.currentRound; round < lobby.totalQuestions; round++) {
       const turn = await resolveCurrentTurn(
-        { id: lobby.id, currentRound: round, categoryId: lobby.categoryId },
+        { id: lobby.id, currentRound: round, categoryId: lobby.categoryId, language: lobby.language },
         lobby.players,
         target,
       );

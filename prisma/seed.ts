@@ -6,7 +6,7 @@ import { DEFAULT_CATEGORY_NAME } from "../lib/categories";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-const CATEGORIES: Record<string, string[]> = {
+const CATEGORIES_FR: Record<string, string[]> = {
   [DEFAULT_CATEGORY_NAME]: [
     "Qui est le personnage principal de cette histoire ?",
     "Où se trouve-t-il au début de l'histoire ?",
@@ -103,23 +103,69 @@ const CATEGORIES: Record<string, string[]> = {
   ],
 };
 
+const CATEGORIES_EN: Record<string, string[]> = {
+  [DEFAULT_CATEGORY_NAME]: [
+    "Who?",
+    "Where?",
+    "What are they doing?",
+    "With whom?",
+    "How?",
+    "Why?",
+    "What goes wrong?",
+    "How does it end?",
+  ],
+  "🔥 Chaos": [
+    "Who is the main character?",
+    "What completely ridiculous thing are they doing?",
+    "Where does it happen?",
+    "What animal appears?",
+    "Who makes everything worse?",
+    "What explodes?",
+    "What secret is revealed?",
+    "Who gets blamed?",
+    "What does everyone scream?",
+    "How does this disaster end?",
+  ],
+  "👫 Friends": [
+    "Which friend is the main character?",
+    "Where are they?",
+    "What are they doing?",
+    "Which friend joins them?",
+    "Who betrays them?",
+    "Who saves them?",
+    "What embarrassing thing happens?",
+    "Who gets arrested?",
+    "What does everyone say afterward?",
+    "What does the group remember forever?",
+  ],
+};
+
+const CATEGORIES_BY_LANGUAGE: Record<string, Record<string, string[]>> = {
+  fr: CATEGORIES_FR,
+  en: CATEGORIES_EN,
+};
+
 async function main() {
-  for (const [name, questions] of Object.entries(CATEGORIES)) {
-    const category = await prisma.category.upsert({
-      where: { name },
-      update: {},
-      create: { name },
-    });
-
-    for (const [index, text] of questions.entries()) {
-      await prisma.question.upsert({
-        where: { categoryId_order: { categoryId: category.id, order: index + 1 } },
-        update: { text },
-        create: { text, order: index + 1, categoryId: category.id },
+  for (const [language, categories] of Object.entries(CATEGORIES_BY_LANGUAGE)) {
+    for (const [name, questions] of Object.entries(categories)) {
+      const category = await prisma.category.upsert({
+        where: { name },
+        update: {},
+        create: { name },
       });
-    }
 
-    console.log(`Seeded category "${name}" with ${questions.length} questions.`);
+      for (const [index, text] of questions.entries()) {
+        await prisma.question.upsert({
+          where: {
+            categoryId_language_order: { categoryId: category.id, language, order: index + 1 },
+          },
+          update: { text },
+          create: { text, order: index + 1, language, categoryId: category.id },
+        });
+      }
+
+      console.log(`Seeded category "${name}" (${language}) with ${questions.length} questions.`);
+    }
   }
 }
 

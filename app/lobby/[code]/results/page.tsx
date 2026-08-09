@@ -40,6 +40,7 @@ export default function ResultsPage() {
         maxPlayers: lobby.maxPlayers,
         totalQuestions: lobby.totalQuestions,
         categoryId: lobby.categoryId ?? undefined,
+        language: lobby.language as "fr" | "en",
       });
     },
     onSuccess: ({ lobby }) => {
