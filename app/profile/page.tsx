@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfile, listAchievements, updateProfile } from "@/lib/api-client";
 import { ACHIEVEMENT_INFO } from "@/lib/achievement-info";
+import { getPlayerLevel } from "@/lib/player-level";
 
 const ALL_TYPES = Object.keys(ACHIEVEMENT_INFO) as (keyof typeof ACHIEVEMENT_INFO)[];
 
@@ -34,7 +35,9 @@ export default function ProfilePage() {
   const updateProfileMutation = useMutation({
     mutationFn: () => updateProfile({ bio, avatarUrl }),
     onSuccess: ({ user }) => {
-      queryClient.setQueryData(["profile"], { user });
+      queryClient.setQueryData(["profile"], (current: typeof profileData) =>
+        current ? { ...current, user } : current,
+      );
       setEditing(false);
     },
     onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
@@ -42,6 +45,8 @@ export default function ProfilePage() {
 
   const unlockedTypes = new Set(achievementsData?.achievements.map((a) => a.type));
   const user = profileData?.user;
+  const stats = profileData?.stats;
+  const level = stats ? getPlayerLevel(stats.gamesPlayed) : null;
 
   return (
     <div className="flex flex-1 items-center justify-center bg-[#e8e1d0] px-4 py-16">
@@ -89,6 +94,13 @@ export default function ProfilePage() {
                 {user.name}
               </p>
 
+              {level && (
+                <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs text-stone-600">
+                  <span>{level.icon}</span>
+                  <span>{level.title}</span>
+                </span>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
@@ -101,6 +113,23 @@ export default function ProfilePage() {
               >
                 ID: {user.playerCode} {copied ? "✓" : ""}
               </button>
+
+              {stats && (
+                <div className="mt-4 flex gap-6 text-center">
+                  <div>
+                    <p className="font-[family-name:var(--font-serif)] text-lg text-stone-800">
+                      {stats.friendsCount}
+                    </p>
+                    <p className="text-xs text-stone-500">Friends</p>
+                  </div>
+                  <div>
+                    <p className="font-[family-name:var(--font-serif)] text-lg text-stone-800">
+                      {stats.gamesPlayed}
+                    </p>
+                    <p className="text-xs text-stone-500">Games played</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {editing ? (

@@ -20,6 +20,7 @@ enum AchievementType {
   FIRST_STORY
   FIRST_FRIEND
   ACCOMPLICE
+  STORY_LIKED
 }
 
 model User {
@@ -98,6 +99,7 @@ model Player {
 
   answers        Answer[]
   storiesStarted Story[]  @relation("StoryStarter")
+  storyLikes     StoryLike[]
 
   @@unique([lobbyId, pseudo])
 }
@@ -135,6 +137,20 @@ model Story {
   starterPlayer   Player @relation("StoryStarter", fields: [starterPlayerId], references: [id])
 
   answers Answer[]
+  likes   StoryLike[]
+}
+
+model StoryLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  storyId String
+  story   Story  @relation(fields: [storyId], references: [id])
+
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id])
+
+  @@unique([storyId, playerId])
 }
 
 model Answer {

@@ -1,4 +1,4 @@
-export type AchievementType = "FIRST_STORY" | "FIRST_FRIEND" | "ACCOMPLICE";
+export type AchievementType = "FIRST_STORY" | "FIRST_FRIEND" | "ACCOMPLICE" | "STORY_LIKED";
 
 export const ACCOMPLICE_THRESHOLD = 3;
 
@@ -20,5 +20,10 @@ export const ACHIEVEMENT_INFO: Record<
     title: "Accomplice",
     description: `Finish ${ACCOMPLICE_THRESHOLD} games with the same friend`,
     icon: "🎭",
+  },
+  STORY_LIKED: {
+    title: "Crowd favorite",
+    description: "Get one of your stories liked",
+    icon: "❤️",
   },
 };

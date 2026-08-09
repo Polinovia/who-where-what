@@ -96,11 +96,23 @@ type FinishedStory = {
     question: { text: string };
     player: { id: string; pseudo: string };
   }[];
+  likeCount: number;
+  likedByMe: boolean;
 };
 
-export async function getFinishedStories(code: string) {
-  const res = await fetch(`/api/lobby/${code}/stories`);
+export async function getFinishedStories(code: string, playerId?: string) {
+  const query = playerId ? `?playerId=${encodeURIComponent(playerId)}` : "";
+  const res = await fetch(`/api/lobby/${code}/stories${query}`);
   return parseJson<{ stories: FinishedStory[] }>(res);
+}
+
+export async function likeStory(code: string, storyId: string, playerId: string) {
+  const res = await fetch(`/api/lobby/${code}/stories/${storyId}/like`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ playerId }),
+  });
+  return parseJson<{ likeCount: number; liked: boolean }>(res);
 }
 
 type Category = { id: string; name: string };
@@ -151,9 +163,11 @@ type Profile = {
   bio: string | null;
 };
 
+type ProfileStats = { friendsCount: number; gamesPlayed: number };
+
 export async function getProfile() {
   const res = await fetch("/api/profile");
-  return parseJson<{ user: Profile }>(res);
+  return parseJson<{ user: Profile; stats: ProfileStats }>(res);
 }
 
 export async function updateProfile(input: UpdateProfileInput) {

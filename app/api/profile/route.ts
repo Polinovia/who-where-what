@@ -18,12 +18,15 @@ export async function GET() {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: profileSelect,
-  });
+  const [user, friendsCount, gamesPlayed] = await Promise.all([
+    prisma.user.findUnique({ where: { id: session.user.id }, select: profileSelect }),
+    prisma.friendship.count({ where: { userId: session.user.id } }),
+    prisma.lobby.count({
+      where: { status: "FINISHED", players: { some: { userId: session.user.id } } },
+    }),
+  ]);
 
-  return NextResponse.json({ user });
+  return NextResponse.json({ user, stats: { friendsCount, gamesPlayed } });
 }
 
 export async function PATCH(request: NextRequest) {

@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
+  const viewerPlayerId = request.nextUrl.searchParams.get("playerId");
 
   const lobby = await prisma.lobby.findUnique({
     where: { code: code.toUpperCase() },
@@ -33,8 +34,16 @@ export async function GET(
           player: { select: { id: true, pseudo: true } },
         },
       },
+      likes: viewerPlayerId ? { where: { playerId: viewerPlayerId } } : false,
+      _count: { select: { likes: true } },
     },
   });
 
-  return NextResponse.json({ stories });
+  return NextResponse.json({
+    stories: stories.map(({ _count, likes, ...story }) => ({
+      ...story,
+      likeCount: _count.likes,
+      likedByMe: viewerPlayerId ? likes.length > 0 : false,
+    })),
+  });
 }

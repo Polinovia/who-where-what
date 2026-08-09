@@ -45,6 +45,19 @@ export async function checkGameFinishedAchievements(lobbyId: string) {
   }
 }
 
+// Called after a new like is recorded: unlocks "crowd favorite" for the
+// story's starter, if they're a registered user.
+export async function checkStoryLikedAchievement(storyId: string) {
+  const story = await prisma.story.findUnique({
+    where: { id: storyId },
+    include: { starterPlayer: { select: { userId: true } } },
+  });
+  const userId = story?.starterPlayer.userId;
+  if (!userId) return;
+
+  await unlockAchievement(userId, "STORY_LIKED");
+}
+
 async function checkAccomplice(userIdA: string, userIdB: string) {
   const sharedFinishedLobbies = await prisma.lobby.count({
     where: {

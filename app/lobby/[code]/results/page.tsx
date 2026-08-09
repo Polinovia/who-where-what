@@ -3,13 +3,14 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { createLobby, getFinishedStories, getLobby } from "@/lib/api-client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createLobby, getFinishedStories, getLobby, likeStory } from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, savePlayerIdentity, subscribePlayerIdentity } from "@/lib/player-identity";
 
 export default function ResultsPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const identity = useSyncExternalStore(
     subscribePlayerIdentity,
@@ -18,9 +19,24 @@ export default function ResultsPage() {
   );
 
   const { data, isError } = useQuery({
-    queryKey: ["stories", code],
-    queryFn: () => getFinishedStories(code),
+    queryKey: ["stories", code, identity?.playerId],
+    queryFn: () => getFinishedStories(code, identity!.playerId),
     enabled: !!identity,
+  });
+
+  const likeMutation = useMutation({
+    mutationFn: (storyId: string) => likeStory(code, storyId, identity!.playerId),
+    onSuccess: ({ likeCount, liked }, storyId) => {
+      queryClient.setQueryData(
+        ["stories", code, identity?.playerId],
+        (current: typeof data) =>
+          current && {
+            stories: current.stories.map((story) =>
+              story.id === storyId ? { ...story, likeCount, likedByMe: liked } : story,
+            ),
+          },
+      );
+    },
   });
 
   const { data: lobbyData } = useQuery({
@@ -103,6 +119,18 @@ export default function ResultsPage() {
                   </li>
                 ))}
               </ul>
+
+              <button
+                type="button"
+                onClick={() => likeMutation.mutate(story.id)}
+                disabled={likeMutation.isPending}
+                className={`mt-4 flex items-center gap-1.5 text-sm transition-colors disabled:opacity-50 ${
+                  story.likedByMe ? "text-red-600" : "text-stone-400 hover:text-red-500"
+                }`}
+              >
+                <span>{story.likedByMe ? "❤️" : "🤍"}</span>
+                <span>{story.likeCount}</span>
+              </button>
             </div>
           ))}
         </div>
