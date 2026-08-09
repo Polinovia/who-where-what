@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getLobby, setReady, kickPlayer, addFriend } from "@/lib/api-client";
+import { getLobby, setReady, kickPlayer, addFriend, startLobbyNow } from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
 
 export default function LobbyWaitingRoomPage() {
@@ -56,6 +56,14 @@ export default function LobbyWaitingRoomPage() {
   const kickMutation = useMutation({
     mutationFn: (targetPlayerId: string) =>
       kickPlayer(code, { requesterPlayerId: identity!.playerId, targetPlayerId }),
+    onSuccess: ({ lobby }) => {
+      queryClient.setQueryData(["lobby", code], { lobby });
+    },
+    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+  });
+
+  const startMutation = useMutation({
+    mutationFn: () => startLobbyNow(code, { requesterPlayerId: identity!.playerId }),
     onSuccess: ({ lobby }) => {
       queryClient.setQueryData(["lobby", code], { lobby });
     },
@@ -241,6 +249,17 @@ export default function LobbyWaitingRoomPage() {
         <p className="mt-4 text-center font-[family-name:var(--font-serif)] italic text-sm text-stone-500">
           The story starts once everyone is ready.
         </p>
+
+        {me?.isHost && (lobby?.players.length ?? 0) >= 2 && (
+          <button
+            type="button"
+            onClick={() => startMutation.mutate()}
+            disabled={startMutation.isPending}
+            className="mt-3 h-10 w-full rounded-xl border border-stone-300 text-sm text-stone-600 transition-colors hover:bg-stone-100 disabled:opacity-50"
+          >
+            {startMutation.isPending ? "Starting..." : "Start now (skip waiting for ready)"}
+          </button>
+        )}
       </div>
     </div>
   );

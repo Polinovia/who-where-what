@@ -124,6 +124,15 @@ export async function addFriend(input: AddFriendInput) {
   return parseJson<{ friend: Friend }>(res);
 }
 
+export async function startLobbyNow(code: string, input: { requesterPlayerId: string }) {
+  const res = await fetch(`/api/lobby/${code}/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return parseJson<{ lobby: Lobby }>(res);
+}
+
 export async function kickPlayer(
   code: string,
   input: { requesterPlayerId: string; targetPlayerId: string },

@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { startLobby } from "@/lib/db/start-lobby";
+import { z } from "zod";
+
+const startSchema = z.object({ requesterPlayerId: z.string().min(1) });
 
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
+  const body = await request.json().catch(() => null);
+  const parsed = startSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.flatten() },
+      { status: 400 },
+    );
+  }
 
   const lobby = await prisma.lobby.findUnique({
     where: { code: code.toUpperCase() },
@@ -15,6 +27,14 @@ export async function POST(
 
   if (!lobby) {
     return NextResponse.json({ error: "Lobby introuvable" }, { status: 404 });
+  }
+
+  const requester = lobby.players.find((p) => p.id === parsed.data.requesterPlayerId);
+  if (!requester?.isHost) {
+    return NextResponse.json(
+      { error: "Seul l'hôte peut démarrer la partie" },
+      { status: 403 },
+    );
   }
 
   if (lobby.status !== "LOBBY") {
