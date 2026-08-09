@@ -96,7 +96,7 @@ export default function ProfilePage() {
 
               {level && (
                 <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs text-stone-600">
-                  <span>{level.icon}</span>
+                  <level.icon size={14} />
                   <span>{level.title}</span>
                 </span>
               )}
@@ -215,7 +215,7 @@ export default function ProfilePage() {
                         : "border-stone-200 opacity-40 grayscale"
                     }`}
                   >
-                    <span className="text-2xl">{info.icon}</span>
+                    <info.icon className="text-stone-700" size={24} />
                     <div>
                       <p className="font-[family-name:var(--font-serif)] text-stone-800">
                         {info.title}

@@ -1,9 +1,11 @@
-export type PlayerLevel = { title: string; icon: string };
+import { Sprout, Star, Trophy, type LucideIcon } from "lucide-react";
 
-const LEVELS: { minGames: number; title: string; icon: string }[] = [
-  { minGames: 10, title: "Veteran", icon: "🏆" },
-  { minGames: 3, title: "Regular", icon: "⭐" },
-  { minGames: 0, title: "Beginner", icon: "🌱" },
+export type PlayerLevel = { title: string; icon: LucideIcon };
+
+const LEVELS: { minGames: number; title: string; icon: LucideIcon }[] = [
+  { minGames: 10, title: "Veteran", icon: Trophy },
+  { minGames: 3, title: "Regular", icon: Star },
+  { minGames: 0, title: "Beginner", icon: Sprout },
 ];
 
 export function getPlayerLevel(gamesPlayed: number): PlayerLevel {

@@ -4,8 +4,13 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Heart } from "lucide-react";
 import { createLobby, getFinishedStories, getLobby, likeStory } from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, savePlayerIdentity, subscribePlayerIdentity } from "@/lib/player-identity";
+
+function toSentence(text: string) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
 
 export default function ResultsPage() {
   const { code } = useParams<{ code: string }>();
@@ -104,31 +109,18 @@ export default function ResultsPage() {
               </p>
 
               <p className="mt-4 font-[family-name:var(--font-serif)] leading-relaxed text-stone-800">
-                {story.answers.map((answer, i) => (
-                  <span key={i}>
-                    {i > 0 && " "}
-                    {answer.text}
-                  </span>
-                ))}
+                {story.answers.map((answer) => `${toSentence(answer.text)}.`).join(" ")}
               </p>
-
-              <ul className="mt-6 flex flex-col gap-1 border-t border-stone-200 pt-4">
-                {story.answers.map((answer, i) => (
-                  <li key={i} className="text-xs text-stone-400">
-                    <span className="italic">{answer.question.text}</span> — {answer.player.pseudo}
-                  </li>
-                ))}
-              </ul>
 
               <button
                 type="button"
                 onClick={() => likeMutation.mutate(story.id)}
                 disabled={likeMutation.isPending}
-                className={`mt-4 flex items-center gap-1.5 text-sm transition-colors disabled:opacity-50 ${
+                className={`mt-6 flex items-center gap-1.5 border-t border-stone-200 pt-4 text-sm transition-colors disabled:opacity-50 ${
                   story.likedByMe ? "text-red-600" : "text-stone-400 hover:text-red-500"
                 }`}
               >
-                <span>{story.likedByMe ? "❤️" : "🤍"}</span>
+                <Heart size={16} fill={story.likedByMe ? "currentColor" : "none"} />
                 <span>{story.likeCount}</span>
               </button>
             </div>
