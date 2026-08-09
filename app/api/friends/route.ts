@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
 import { addFriendSchema } from "@/lib/validation/friends";
+import { unlockAchievement } from "@/lib/db/achievements";
 
 export async function GET() {
   const session = await auth();
@@ -79,6 +80,11 @@ export async function POST(request: NextRequest) {
     }
     throw err;
   }
+
+  await Promise.all([
+    unlockAchievement(userId, "FIRST_FRIEND"),
+    unlockAchievement(friend.id, "FIRST_FRIEND"),
+  ]);
 
   return NextResponse.json(
     { friend: { id: friend.id, name: friend.name, email: friend.email } },

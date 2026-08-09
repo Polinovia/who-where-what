@@ -134,6 +134,13 @@ export async function startLobbyNow(code: string, input: { requesterPlayerId: st
   return parseJson<{ lobby: Lobby }>(res);
 }
 
+type Achievement = { id: string; type: string; relatedUserId: string; unlockedAt: string };
+
+export async function listAchievements() {
+  const res = await fetch("/api/achievements");
+  return parseJson<{ achievements: Achievement[] }>(res);
+}
+
 export async function kickPlayer(
   code: string,
   input: { requesterPlayerId: string; targetPlayerId: string },

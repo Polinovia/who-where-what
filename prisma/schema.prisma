@@ -16,6 +16,12 @@ enum LobbyStatus {
   FINISHED
 }
 
+enum AchievementType {
+  FIRST_STORY
+  FIRST_FRIEND
+  ACCOMPLICE
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -23,9 +29,22 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
 
-  players     Player[]
-  friendships Friendship[] @relation("FriendshipUser")
-  friendOf    Friendship[] @relation("FriendshipFriend")
+  players      Player[]
+  friendships  Friendship[]      @relation("FriendshipUser")
+  friendOf     Friendship[]      @relation("FriendshipFriend")
+  achievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String          @id @default(cuid())
+  type          AchievementType
+  relatedUserId String          @default("")
+  unlockedAt    DateTime        @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, type, relatedUserId])
 }
 
 model Friendship {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { submitAnswerSchema } from "@/lib/validation/lobby";
 import { resolveCurrentTurn } from "@/lib/db/current-turn";
+import { checkGameFinishedAchievements } from "@/lib/db/achievements";
 
 export async function POST(
   request: NextRequest,
@@ -88,13 +89,18 @@ export async function POST(
 
   if (answersForRound === lobby.players.length) {
     const nextRound = round + 1;
+    const finished = nextRound >= lobby.totalQuestions;
     await prisma.lobby.updateMany({
       where: { id: lobby.id, currentRound: round },
       data: {
         currentRound: nextRound,
-        status: nextRound >= lobby.totalQuestions ? "FINISHED" : "IN_PROGRESS",
+        status: finished ? "FINISHED" : "IN_PROGRESS",
       },
     });
+
+    if (finished) {
+      await checkGameFinishedAchievements(lobby.id);
+    }
   }
 
   return NextResponse.json({ status: "ok" });

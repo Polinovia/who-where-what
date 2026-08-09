@@ -23,6 +23,9 @@ export function HomeHeader() {
           <Link href="/friends" className="hover:text-stone-900">
             Friends
           </Link>
+          <Link href="/profile" className="hover:text-stone-900">
+            Profile
+          </Link>
           <button onClick={() => signOut()} className="hover:text-stone-900">
             Log out
           </button>
