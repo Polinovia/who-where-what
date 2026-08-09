@@ -29,6 +29,12 @@ export async function POST(
   }
 
   if (lobby.status !== "LOBBY") {
+    const existingPlayer = lobby.players.find(
+      (p) => p.pseudo === parsed.data.pseudo,
+    );
+    if (existingPlayer) {
+      return NextResponse.json({ lobby, player: existingPlayer });
+    }
     return NextResponse.json(
       { error: "La partie a déjà commencé" },
       { status: 409 },

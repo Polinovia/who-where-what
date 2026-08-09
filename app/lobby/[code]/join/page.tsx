@@ -52,7 +52,8 @@ export default function JoinLobbyPage() {
           Join lobby
         </h1>
         <p className="mt-2 text-center font-[family-name:var(--font-serif)] italic text-stone-600">
-          Enter the code your friend shared with you.
+          Enter the code your friend shared with you. Already playing? Use the
+          same name to rejoin.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-6">
