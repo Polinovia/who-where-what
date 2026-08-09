@@ -43,7 +43,7 @@ export default function ProfilePage() {
     onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
   });
 
-  const unlockedTypes = new Set(achievementsData?.achievements.map((a) => a.type));
+  const unlockedCount = achievementsData?.achievements.length ?? 0;
   const user = profileData?.user;
   const stats = profileData?.stats;
   const level = stats ? getLevelProgress(stats.points) : null;
@@ -137,6 +137,12 @@ export default function ProfilePage() {
                     </p>
                     <p className="text-xs text-stone-500">Games played</p>
                   </div>
+                  <Link href="/achievements" className="hover:opacity-70">
+                    <p className="font-[family-name:var(--font-serif)] text-lg text-stone-800">
+                      {unlockedCount}/{ALL_TYPES.length}
+                    </p>
+                    <p className="text-xs text-stone-500 underline">Achievements</p>
+                  </Link>
                 </div>
               )}
             </div>
@@ -210,31 +216,6 @@ export default function ProfilePage() {
                 </button>
               </div>
             )}
-
-            <ul className="mt-8 flex flex-col gap-3">
-              {ALL_TYPES.map((type) => {
-                const info = ACHIEVEMENT_INFO[type];
-                const unlocked = unlockedTypes.has(type);
-                return (
-                  <li
-                    key={type}
-                    className={`flex items-center gap-4 rounded-xl border px-4 py-3 ${
-                      unlocked
-                        ? "border-stone-300 bg-white"
-                        : "border-stone-200 opacity-40 grayscale"
-                    }`}
-                  >
-                    <info.icon className="text-stone-700" size={24} />
-                    <div>
-                      <p className="font-[family-name:var(--font-serif)] text-stone-800">
-                        {info.title}
-                      </p>
-                      <p className="text-sm text-stone-500">{info.description}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
           </>
         ) : null}
       </div>
