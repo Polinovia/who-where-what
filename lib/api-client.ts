@@ -5,6 +5,7 @@ import type {
   SubmitAnswerInput,
 } from "@/lib/validation/lobby";
 import type { AddFriendInput } from "@/lib/validation/friends";
+import type { UpdateProfileInput } from "@/lib/validation/profile";
 
 type Lobby = {
   id: string;
@@ -139,6 +140,36 @@ type Achievement = { id: string; type: string; relatedUserId: string; unlockedAt
 export async function listAchievements() {
   const res = await fetch("/api/achievements");
   return parseJson<{ achievements: Achievement[] }>(res);
+}
+
+type Profile = {
+  id: string;
+  name: string;
+  email: string;
+  playerCode: string;
+  avatarUrl: string | null;
+  bio: string | null;
+};
+
+export async function getProfile() {
+  const res = await fetch("/api/profile");
+  return parseJson<{ user: Profile }>(res);
+}
+
+export async function updateProfile(input: UpdateProfileInput) {
+  const res = await fetch("/api/profile", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return parseJson<{ user: Profile }>(res);
+}
+
+type PlayerSearchResult = { id: string; name: string; playerCode: string; avatarUrl: string | null };
+
+export async function searchPlayerByCode(code: string) {
+  const res = await fetch(`/api/players/search?code=${encodeURIComponent(code)}`);
+  return parseJson<{ player: PlayerSearchResult }>(res);
 }
 
 export async function kickPlayer(

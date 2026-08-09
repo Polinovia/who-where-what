@@ -4,13 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { addFriend, listFriends } from "@/lib/api-client";
+import { addFriend, listFriends, searchPlayerByCode } from "@/lib/api-client";
 
 export default function FriendsPage() {
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
 
+  const [mode, setMode] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const { data } = useQuery({
@@ -23,6 +25,18 @@ export default function FriendsPage() {
     mutationFn: (friendEmail: string) => addFriend({ friendEmail }),
     onSuccess: () => {
       setEmail("");
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+    },
+    onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
+  });
+
+  const addByCodeMutation = useMutation({
+    mutationFn: async (playerCode: string) => {
+      const { player } = await searchPlayerByCode(playerCode);
+      return addFriend({ userId: player.id });
+    },
+    onSuccess: () => {
+      setCode("");
       queryClient.invalidateQueries({ queryKey: ["friends"] });
     },
     onError: (err) => setError(err instanceof Error ? err.message : "Erreur inattendue"),
@@ -57,30 +71,81 @@ export default function FriendsPage() {
           </p>
         ) : (
           <>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setError(null);
-                addFriendMutation.mutate(email);
-              }}
-              className="mt-8 flex gap-2"
-            >
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Friend's email"
-                className="h-12 flex-1 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
-              />
+            <div className="mt-8 flex gap-2">
               <button
-                type="submit"
-                disabled={addFriendMutation.isPending}
-                className="h-12 rounded-xl bg-[#33261c] px-5 text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
+                type="button"
+                onClick={() => setMode("email")}
+                className={`h-9 flex-1 rounded-lg border text-sm transition-colors ${
+                  mode === "email"
+                    ? "border-stone-800 bg-stone-800 text-stone-50"
+                    : "border-stone-300 text-stone-700 hover:bg-stone-100"
+                }`}
               >
-                Add
+                By email
               </button>
-            </form>
+              <button
+                type="button"
+                onClick={() => setMode("code")}
+                className={`h-9 flex-1 rounded-lg border text-sm transition-colors ${
+                  mode === "code"
+                    ? "border-stone-800 bg-stone-800 text-stone-50"
+                    : "border-stone-300 text-stone-700 hover:bg-stone-100"
+                }`}
+              >
+                By player ID
+              </button>
+            </div>
+
+            {mode === "email" ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setError(null);
+                  addFriendMutation.mutate(email);
+                }}
+                className="mt-3 flex gap-2"
+              >
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Friend's email"
+                  className="h-12 flex-1 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
+                />
+                <button
+                  type="submit"
+                  disabled={addFriendMutation.isPending}
+                  className="h-12 rounded-xl bg-[#33261c] px-5 text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
+                >
+                  Add
+                </button>
+              </form>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setError(null);
+                  addByCodeMutation.mutate(code);
+                }}
+                className="mt-3 flex gap-2"
+              >
+                <input
+                  required
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  placeholder="Friend's player ID"
+                  className="h-12 flex-1 rounded-xl border border-stone-300 px-4 uppercase text-stone-800 outline-none focus:border-stone-500"
+                />
+                <button
+                  type="submit"
+                  disabled={addByCodeMutation.isPending}
+                  className="h-12 rounded-xl bg-[#33261c] px-5 text-stone-50 transition-colors hover:bg-[#241a13] disabled:opacity-50"
+                >
+                  Add
+                </button>
+              </form>
+            )}
 
             {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
