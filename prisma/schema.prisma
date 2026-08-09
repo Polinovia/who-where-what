@@ -64,6 +64,7 @@ model Player {
   isHost   Boolean  @default(false)
   seat     Int?
   ready    Boolean  @default(false)
+  kicked   Boolean  @default(false)
   joinedAt DateTime @default(now())
 
   lobbyId String

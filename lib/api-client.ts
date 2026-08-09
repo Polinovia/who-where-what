@@ -22,6 +22,7 @@ type Lobby = {
     ready: boolean;
     seat: number | null;
     userId: string | null;
+    kicked: boolean;
   }[];
 };
 

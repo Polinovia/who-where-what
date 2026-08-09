@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCurrentQuestion, submitAnswer } from "@/lib/api-client";
+import { getCurrentQuestion, getLobby, kickPlayer, submitAnswer } from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
 
 export default function PlayPage() {
@@ -27,6 +27,23 @@ export default function PlayPage() {
     queryFn: () => getCurrentQuestion(code, identity!.playerId),
     enabled: !!identity,
     refetchInterval: 1500,
+  });
+
+  const { data: lobbyData } = useQuery({
+    queryKey: ["lobby", code],
+    queryFn: () => getLobby(code),
+    enabled: !!identity,
+    refetchInterval: 1500,
+  });
+  const lobby = lobbyData?.lobby;
+  const me = lobby?.players.find((p) => p.id === identity?.playerId);
+
+  const kickMutation = useMutation({
+    mutationFn: (targetPlayerId: string) =>
+      kickPlayer(code, { requesterPlayerId: identity!.playerId, targetPlayerId }),
+    onSuccess: ({ lobby }) => {
+      queryClient.setQueryData(["lobby", code], { lobby });
+    },
   });
 
   useEffect(() => {
@@ -124,6 +141,30 @@ export default function PlayPage() {
             </button>
           </form>
         ) : null}
+
+        {me?.isHost && (
+          <div className="mt-8 border-t border-stone-200 pt-4">
+            <p className="text-center font-[family-name:var(--font-serif)] text-xs uppercase tracking-[0.2em] text-stone-400">
+              Host: someone stuck?
+            </p>
+            <ul className="mt-2 flex flex-col gap-1">
+              {lobby?.players
+                .filter((p) => p.id !== me.id && !p.kicked)
+                .map((p) => (
+                  <li key={p.id} className="flex items-center justify-between text-sm">
+                    <span className="text-stone-600">{p.pseudo}</span>
+                    <button
+                      type="button"
+                      onClick={() => kickMutation.mutate(p.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      remove
+                    </button>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

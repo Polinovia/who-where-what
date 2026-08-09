@@ -42,6 +42,13 @@ export async function POST(
     );
   }
 
+  if (player.kicked) {
+    return NextResponse.json(
+      { error: "Tu as été exclu de cette partie" },
+      { status: 403 },
+    );
+  }
+
   const turn = await resolveCurrentTurn(lobby, lobby.players, player);
   if (!turn) {
     return NextResponse.json(

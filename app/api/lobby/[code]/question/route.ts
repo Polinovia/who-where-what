@@ -37,6 +37,13 @@ export async function GET(
     );
   }
 
+  if (player.kicked) {
+    return NextResponse.json(
+      { error: "Tu as été exclu de cette partie" },
+      { status: 403 },
+    );
+  }
+
   if (lobby.status === "FINISHED" || lobby.currentRound >= lobby.totalQuestions) {
     return NextResponse.json({ status: "finished" });
   }

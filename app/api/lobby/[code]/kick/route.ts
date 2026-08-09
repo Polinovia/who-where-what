@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { z } from "zod";
+import { resolveCurrentTurn } from "@/lib/db/current-turn";
 
 const kickSchema = z.object({
   requesterPlayerId: z.string().min(1),
@@ -31,9 +32,9 @@ export async function POST(
     return NextResponse.json({ error: "Lobby introuvable" }, { status: 404 });
   }
 
-  if (lobby.status !== "LOBBY") {
+  if (lobby.status === "FINISHED") {
     return NextResponse.json(
-      { error: "La partie a déjà commencé" },
+      { error: "La partie est terminée" },
       { status: 409 },
     );
   }
@@ -61,7 +62,63 @@ export async function POST(
     );
   }
 
-  await prisma.player.delete({ where: { id: target.id } });
+  if (lobby.status === "LOBBY") {
+    await prisma.player.delete({ where: { id: target.id } });
+
+    const updatedLobby = await prisma.lobby.findUnique({
+      where: { id: lobby.id },
+      include: { players: true },
+    });
+
+    return NextResponse.json({ lobby: updatedLobby });
+  }
+
+  // Mid-game: don't delete the player (their answers/stories are still
+  // referenced by other players' stories). Mark them kicked, backfill a
+  // placeholder answer for every remaining round they'd have written, and
+  // advance the round if that was the only thing blocking it.
+  await prisma.$transaction(async (tx) => {
+    await tx.player.update({ where: { id: target.id }, data: { kicked: true } });
+
+    for (let round = lobby.currentRound; round < lobby.totalQuestions; round++) {
+      const turn = await resolveCurrentTurn(
+        { id: lobby.id, currentRound: round, categoryId: lobby.categoryId },
+        lobby.players,
+        target,
+      );
+      if (!turn) continue;
+
+      await tx.answer.upsert({
+        where: { storyId_order: { storyId: turn.story.id, order: round + 1 } },
+        update: {},
+        create: {
+          storyId: turn.story.id,
+          questionId: turn.question.id,
+          playerId: target.id,
+          order: round + 1,
+          text: "(left the game)",
+        },
+      });
+    }
+
+    let round = lobby.currentRound;
+    while (round < lobby.totalQuestions) {
+      const answersForRound = await tx.answer.count({
+        where: { order: round + 1, story: { lobbyId: lobby.id } },
+      });
+      if (answersForRound < lobby.players.length) break;
+
+      const nextRound = round + 1;
+      await tx.lobby.updateMany({
+        where: { id: lobby.id, currentRound: round },
+        data: {
+          currentRound: nextRound,
+          status: nextRound >= lobby.totalQuestions ? "FINISHED" : "IN_PROGRESS",
+        },
+      });
+      round = nextRound;
+    }
+  });
 
   const updatedLobby = await prisma.lobby.findUnique({
     where: { id: lobby.id },
