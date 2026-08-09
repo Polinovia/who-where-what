@@ -48,12 +48,12 @@ export default function Home() {
         </main>
 
         <footer className="mt-16 text-center">
-          <Link
-            href="/feedback"
+          <a
+            href="mailto:maximilien01993@gmail.com?subject=Who%2C%20Where%2C%20What%20feedback"
             className="font-[family-name:var(--font-script)] text-xl text-stone-500 hover:text-stone-700"
           >
             Give me feedback
-          </Link>
+          </a>
         </footer>
       </div>
     </div>
