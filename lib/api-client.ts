@@ -163,7 +163,7 @@ type Profile = {
   bio: string | null;
 };
 
-type ProfileStats = { friendsCount: number; gamesPlayed: number };
+type ProfileStats = { friendsCount: number; gamesPlayed: number; points: number };
 
 export async function getProfile() {
   const res = await fetch("/api/profile");

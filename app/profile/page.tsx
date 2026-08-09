@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfile, listAchievements, updateProfile } from "@/lib/api-client";
 import { ACHIEVEMENT_INFO } from "@/lib/achievement-info";
-import { getPlayerLevel } from "@/lib/player-level";
+import { getLevelProgress } from "@/lib/player-level";
 
 const ALL_TYPES = Object.keys(ACHIEVEMENT_INFO) as (keyof typeof ACHIEVEMENT_INFO)[];
 
@@ -46,7 +46,7 @@ export default function ProfilePage() {
   const unlockedTypes = new Set(achievementsData?.achievements.map((a) => a.type));
   const user = profileData?.user;
   const stats = profileData?.stats;
-  const level = stats ? getPlayerLevel(stats.gamesPlayed) : null;
+  const level = stats ? getLevelProgress(stats.points) : null;
 
   return (
     <div className="flex flex-1 items-center justify-center bg-[#e8e1d0] px-4 py-16">
@@ -95,10 +95,19 @@ export default function ProfilePage() {
               </p>
 
               {level && (
-                <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs text-stone-600">
-                  <level.icon size={14} />
-                  <span>{level.title}</span>
-                </span>
+                <div className="mt-1 flex flex-col items-center gap-1">
+                  <span className="rounded-full border border-stone-300 bg-white px-3 py-1 text-xs text-stone-600">
+                    Level {level.level}
+                  </span>
+                  <div className="h-1.5 w-24 overflow-hidden rounded-full bg-stone-200">
+                    <div
+                      className="h-full rounded-full bg-stone-500"
+                      style={{
+                        width: `${(level.pointsIntoLevel / level.pointsPerLevel) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
               )}
 
               <button

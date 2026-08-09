@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
 import { updateProfileSchema } from "@/lib/validation/profile";
+import { computeUserPoints } from "@/lib/db/points";
 
 const profileSelect = {
   id: true,
@@ -18,15 +19,16 @@ export async function GET() {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  const [user, friendsCount, gamesPlayed] = await Promise.all([
+  const [user, friendsCount, gamesPlayed, points] = await Promise.all([
     prisma.user.findUnique({ where: { id: session.user.id }, select: profileSelect }),
     prisma.friendship.count({ where: { userId: session.user.id } }),
     prisma.lobby.count({
       where: { status: "FINISHED", players: { some: { userId: session.user.id } } },
     }),
+    computeUserPoints(session.user.id),
   ]);
 
-  return NextResponse.json({ user, stats: { friendsCount, gamesPlayed } });
+  return NextResponse.json({ user, stats: { friendsCount, gamesPlayed, points } });
 }
 
 export async function PATCH(request: NextRequest) {

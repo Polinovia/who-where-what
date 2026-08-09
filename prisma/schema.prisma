@@ -25,6 +25,10 @@ enum AchievementType {
   SOCIAL_BUTTERFLY
   CROWD_PLEASER
   WORDSMITH
+  LEVEL_10
+  LEVEL_30
+  LEVEL_50
+  LEVEL_100
 }
 
 model User {

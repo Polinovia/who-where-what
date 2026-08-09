@@ -1,14 +1,23 @@
-import { Sprout, Star, Trophy, type LucideIcon } from "lucide-react";
+export const POINTS_PER_GAME = 10;
+export const POINTS_PER_LIKE = 2;
+export const POINTS_PER_ACHIEVEMENT = 20;
+export const POINTS_PER_LEVEL = 10;
 
-export type PlayerLevel = { title: string; icon: LucideIcon };
+export function getLevel(points: number): number {
+  return Math.floor(points / POINTS_PER_LEVEL);
+}
 
-const LEVELS: { minGames: number; title: string; icon: LucideIcon }[] = [
-  { minGames: 10, title: "Veteran", icon: Trophy },
-  { minGames: 3, title: "Regular", icon: Star },
-  { minGames: 0, title: "Beginner", icon: Sprout },
-];
+export type LevelProgress = {
+  level: number;
+  pointsIntoLevel: number;
+  pointsPerLevel: number;
+};
 
-export function getPlayerLevel(gamesPlayed: number): PlayerLevel {
-  const level = LEVELS.find((l) => gamesPlayed >= l.minGames)!;
-  return { title: level.title, icon: level.icon };
+export function getLevelProgress(points: number): LevelProgress {
+  const level = getLevel(points);
+  return {
+    level,
+    pointsIntoLevel: points - level * POINTS_PER_LEVEL,
+    pointsPerLevel: POINTS_PER_LEVEL,
+  };
 }

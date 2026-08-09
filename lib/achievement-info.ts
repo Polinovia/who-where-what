@@ -1,10 +1,14 @@
 import {
+  Award,
   BookOpen,
+  Crown,
   Drama,
   Feather,
+  Gem,
   Handshake,
   Heart,
   Library,
+  Medal,
   Sparkles,
   Users,
   type LucideIcon,
@@ -18,13 +22,25 @@ export type AchievementType =
   | "STORYTELLER"
   | "SOCIAL_BUTTERFLY"
   | "CROWD_PLEASER"
-  | "WORDSMITH";
+  | "WORDSMITH"
+  | "LEVEL_10"
+  | "LEVEL_30"
+  | "LEVEL_50"
+  | "LEVEL_100";
 
 export const ACCOMPLICE_THRESHOLD = 3;
 export const STORYTELLER_THRESHOLD = 10;
 export const SOCIAL_BUTTERFLY_THRESHOLD = 5;
 export const CROWD_PLEASER_THRESHOLD = 10;
 export const WORDSMITH_THRESHOLD = 50;
+
+// Level milestones that unlock a bonus achievement, in ascending order.
+export const LEVEL_MILESTONES: { level: number; type: AchievementType }[] = [
+  { level: 10, type: "LEVEL_10" },
+  { level: 30, type: "LEVEL_30" },
+  { level: 50, type: "LEVEL_50" },
+  { level: 100, type: "LEVEL_100" },
+];
 
 export const ACHIEVEMENT_INFO: Record<
   AchievementType,
@@ -69,5 +85,25 @@ export const ACHIEVEMENT_INFO: Record<
     title: "Wordsmith",
     description: `Write ${WORDSMITH_THRESHOLD} answers`,
     icon: Feather,
+  },
+  LEVEL_10: {
+    title: "Rising star",
+    description: "Reach level 10",
+    icon: Medal,
+  },
+  LEVEL_30: {
+    title: "Seasoned",
+    description: "Reach level 30",
+    icon: Award,
+  },
+  LEVEL_50: {
+    title: "Master storyteller",
+    description: "Reach level 50",
+    icon: Crown,
+  },
+  LEVEL_100: {
+    title: "Legend",
+    description: "Reach level 100",
+    icon: Gem,
   },
 };

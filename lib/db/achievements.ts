@@ -3,10 +3,15 @@ import { AchievementType } from "@/lib/generated/prisma/enums";
 import {
   ACCOMPLICE_THRESHOLD,
   CROWD_PLEASER_THRESHOLD,
+  LEVEL_MILESTONES,
   SOCIAL_BUTTERFLY_THRESHOLD,
   STORYTELLER_THRESHOLD,
   WORDSMITH_THRESHOLD,
 } from "@/lib/achievement-info";
+import { computeUserPoints } from "@/lib/db/points";
+import { getLevel } from "@/lib/player-level";
+
+const LEVEL_ACHIEVEMENT_TYPES = new Set(LEVEL_MILESTONES.map((m) => m.type));
 
 export async function unlockAchievement(
   userId: string,
@@ -26,6 +31,25 @@ export async function unlockAchievement(
       return;
     }
     throw err;
+  }
+
+  // Every unlocked achievement is itself worth points, so re-check level
+  // milestones — unless this unlock *is* a level milestone, to avoid
+  // recursing into itself.
+  if (!LEVEL_ACHIEVEMENT_TYPES.has(type as (typeof LEVEL_MILESTONES)[number]["type"])) {
+    await checkLevelAchievements(userId);
+  }
+}
+
+// Called any time a user's points may have changed (finishing a game,
+// receiving a like, unlocking another achievement): unlocks the highest
+// eligible level milestone achievements.
+export async function checkLevelAchievements(userId: string) {
+  for (const milestone of LEVEL_MILESTONES) {
+    const points = await computeUserPoints(userId);
+    if (getLevel(points) >= milestone.level) {
+      await unlockAchievement(userId, milestone.type);
+    }
   }
 }
 
@@ -47,6 +71,7 @@ export async function checkGameFinishedAchievements(lobbyId: string) {
       await unlockAchievement(userId, "FIRST_STORY");
       await checkStoryteller(userId);
       await checkWordsmith(userId);
+      await checkLevelAchievements(userId);
     }),
   );
 
@@ -78,6 +103,7 @@ export async function checkStoryLikedAchievement(storyId: string) {
 
   await unlockAchievement(userId, "STORY_LIKED");
   await checkCrowdPleaser(userId);
+  await checkLevelAchievements(userId);
 }
 
 async function checkStoryteller(userId: string) {
