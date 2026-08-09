@@ -69,10 +69,24 @@ export async function GET(
   });
 
   if (existingAnswer) {
+    const answeredPlayerIds = new Set(
+      (
+        await prisma.answer.findMany({
+          where: { order: round + 1, story: { lobbyId: lobby.id } },
+          select: { playerId: true },
+        })
+      ).map((a) => a.playerId),
+    );
+
+    const waitingOn = lobby.players
+      .filter((p) => !p.kicked && !answeredPlayerIds.has(p.id))
+      .map((p) => p.pseudo);
+
     return NextResponse.json({
       status: "waiting",
       round,
       totalQuestions: lobby.totalQuestions,
+      waitingOn,
     });
   }
 

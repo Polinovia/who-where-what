@@ -105,6 +105,11 @@ export default function PlayPage() {
             <p className="mt-2 text-center font-[family-name:var(--font-serif)] italic text-stone-600">
               The story continues once everyone has answered.
             </p>
+            {data.status === "waiting" && data.waitingOn.length > 0 && (
+              <p className="mt-4 text-center font-[family-name:var(--font-serif)] text-sm text-stone-500">
+                Still writing: {data.waitingOn.join(", ")}
+              </p>
+            )}
           </>
         ) : data.status === "answer" ? (
           <form

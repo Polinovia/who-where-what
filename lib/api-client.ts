@@ -68,7 +68,7 @@ export async function setReady(code: string, input: SetReadyInput) {
 
 type CurrentQuestion =
   | { status: "answer"; round: number; totalQuestions: number; storyId: string; question: { id: string; text: string } }
-  | { status: "waiting"; round: number; totalQuestions: number }
+  | { status: "waiting"; round: number; totalQuestions: number; waitingOn: string[] }
   | { status: "finished" };
 
 export async function getCurrentQuestion(code: string, playerId: string) {
