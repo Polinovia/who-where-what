@@ -19,9 +19,14 @@ export function HomeHeader() {
         <p className="font-[family-name:var(--font-script)] text-2xl text-stone-500">
           Welcome back, {session.user.name}
         </p>
-        <button onClick={() => signOut()} className="text-stone-600 hover:text-stone-900">
-          Log out
-        </button>
+        <nav className="flex items-center gap-6 text-stone-600">
+          <Link href="/friends" className="hover:text-stone-900">
+            Friends
+          </Link>
+          <button onClick={() => signOut()} className="hover:text-stone-900">
+            Log out
+          </button>
+        </nav>
       </header>
     );
   }
