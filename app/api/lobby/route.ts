@@ -27,6 +27,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Catégorie introuvable" }, { status: 404 });
   }
 
+  const questionCount = await prisma.question.count({ where: { categoryId: category.id } });
+  if (totalQuestions > questionCount) {
+    return NextResponse.json(
+      { error: `Cette catégorie n'a que ${questionCount} questions` },
+      { status: 400 },
+    );
+  }
+
   let lobby;
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateLobbyCode();
