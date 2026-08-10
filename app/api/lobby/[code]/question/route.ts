@@ -98,6 +98,6 @@ export async function GET(
     round,
     totalQuestions: lobby.totalQuestions,
     storyId: story.id,
-    question: { id: question.id, text: question.text },
+    question: { id: question.id, text: question.text, placeholders: question.placeholders },
   });
 }

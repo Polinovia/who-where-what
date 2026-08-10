@@ -21,6 +21,7 @@ type Lobby = {
     id: string;
     pseudo: string;
     isHost: boolean;
+    isBot: boolean;
     ready: boolean;
     seat: number | null;
     userId: string | null;
@@ -44,6 +45,15 @@ async function parseJson<T>(response: Response): Promise<T> {
 
 export async function createLobby(input: CreateLobbyInput) {
   const res = await fetch("/api/lobby", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return parseJson<{ lobby: Lobby }>(res);
+}
+
+export async function createSoloLobby(input: { pseudo: string; language: string }) {
+  const res = await fetch("/api/lobby/solo", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -77,7 +87,13 @@ export async function setReady(code: string, input: SetReadyInput, language?: st
 }
 
 type CurrentQuestion =
-  | { status: "answer"; round: number; totalQuestions: number; storyId: string; question: { id: string; text: string } }
+  | {
+      status: "answer";
+      round: number;
+      totalQuestions: number;
+      storyId: string;
+      question: { id: string; text: string; placeholders: string[] };
+    }
   | { status: "waiting"; round: number; totalQuestions: number; waitingOn: string[] }
   | { status: "finished" };
 

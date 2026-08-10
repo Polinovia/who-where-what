@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { z } from "zod";
 import { resolveCurrentTurn } from "@/lib/db/current-turn";
 import { translateLobbyName } from "@/lib/translate";
+import { submitBotAnswers } from "@/lib/db/bots";
 
 const kickSchema = z.object({
   requesterPlayerId: z.string().min(1),
@@ -122,13 +123,17 @@ export async function POST(
       if (answersForRound < lobby.players.length) break;
 
       const nextRound = round + 1;
+      const finished = nextRound >= lobby.totalQuestions;
       await tx.lobby.updateMany({
         where: { id: lobby.id, currentRound: round },
         data: {
           currentRound: nextRound,
-          status: nextRound >= lobby.totalQuestions ? "FINISHED" : "IN_PROGRESS",
+          status: finished ? "FINISHED" : "IN_PROGRESS",
         },
       });
+      if (!finished) {
+        await submitBotAnswers(tx, lobby, lobby.players, nextRound);
+      }
       round = nextRound;
     }
   });

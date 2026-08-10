@@ -94,6 +94,7 @@ model Player {
   id       String   @id @default(cuid())
   pseudo   String
   isHost   Boolean  @default(false)
+  isBot    Boolean  @default(false)
   seat     Int?
   ready    Boolean  @default(false)
   kicked   Boolean  @default(false)
@@ -120,10 +121,11 @@ model Category {
 }
 
 model Question {
-  id         String   @id @default(cuid())
-  text       String
-  order      Int
-  language   String   @default("fr")
+  id           String   @id @default(cuid())
+  text         String
+  order        Int
+  language     String   @default("fr")
+  placeholders String[] @default([])
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
