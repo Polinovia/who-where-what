@@ -5,7 +5,6 @@ type LobbyForTurn = {
   id: string;
   currentRound: number;
   categoryId: string | null;
-  language: string;
 };
 
 type PlayerForTurn = {
@@ -15,10 +14,13 @@ type PlayerForTurn = {
 
 // Resolves which story + question a given player must write into for the
 // lobby's current round, per the seat-rotation scheme in lib/game/rotation.ts.
+// `language` is the viewer's own UI language, not a lobby-wide setting — each
+// player sees the question text in whichever language they understand.
 export async function resolveCurrentTurn(
   lobby: LobbyForTurn,
   players: PlayerForTurn[],
   player: PlayerForTurn,
+  language: string,
 ) {
   if (player.seat === null) return null;
 
@@ -33,7 +35,7 @@ export async function resolveCurrentTurn(
     }),
     lobby.categoryId
       ? prisma.question.findFirst({
-          where: { categoryId: lobby.categoryId, language: lobby.language, order: round + 1 },
+          where: { categoryId: lobby.categoryId, language, order: round + 1 },
         })
       : null,
   ]);

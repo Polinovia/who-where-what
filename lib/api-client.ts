@@ -73,8 +73,10 @@ type CurrentQuestion =
   | { status: "waiting"; round: number; totalQuestions: number; waitingOn: string[] }
   | { status: "finished" };
 
-export async function getCurrentQuestion(code: string, playerId: string) {
-  const res = await fetch(`/api/lobby/${code}/question?playerId=${encodeURIComponent(playerId)}`);
+export async function getCurrentQuestion(code: string, playerId: string, language: string) {
+  const res = await fetch(
+    `/api/lobby/${code}/question?playerId=${encodeURIComponent(playerId)}&language=${encodeURIComponent(language)}`,
+  );
   return parseJson<CurrentQuestion>(res);
 }
 

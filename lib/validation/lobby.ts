@@ -28,7 +28,7 @@ export const createLobbySchema = z.object({
   categoryId: z.string().min(1).optional(),
   language: languageSchema.optional().default("fr"),
 });
-export type CreateLobbyInput = z.infer<typeof createLobbySchema>;
+export type CreateLobbyInput = z.input<typeof createLobbySchema>;
 
 export const joinLobbySchema = z.object({
   code: z
@@ -49,5 +49,6 @@ export type SetReadyInput = z.infer<typeof setReadySchema>;
 export const submitAnswerSchema = z.object({
   playerId: z.string().min(1),
   text: z.string().trim().min(1, "Réponse requise").max(120, "120 caractères maximum"),
+  language: languageSchema.optional().default("fr"),
 });
-export type SubmitAnswerInput = z.infer<typeof submitAnswerSchema>;
+export type SubmitAnswerInput = z.input<typeof submitAnswerSchema>;

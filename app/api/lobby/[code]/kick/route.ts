@@ -81,11 +81,21 @@ export async function POST(
     await tx.player.update({ where: { id: target.id }, data: { kicked: true } });
 
     for (let round = lobby.currentRound; round < lobby.totalQuestions; round++) {
-      const turn = await resolveCurrentTurn(
-        { id: lobby.id, currentRound: round, categoryId: lobby.categoryId, language: lobby.language },
-        lobby.players,
-        target,
-      );
+      // The placeholder text below isn't translated, so either language works —
+      // fall back to "en" in case a category's "fr" set is missing this round's order.
+      const turn =
+        (await resolveCurrentTurn(
+          { id: lobby.id, currentRound: round, categoryId: lobby.categoryId },
+          lobby.players,
+          target,
+          "fr",
+        )) ??
+        (await resolveCurrentTurn(
+          { id: lobby.id, currentRound: round, categoryId: lobby.categoryId },
+          lobby.players,
+          target,
+          "en",
+        ));
       if (!turn) continue;
 
       await tx.answer.upsert({
@@ -97,6 +107,7 @@ export async function POST(
           playerId: target.id,
           order: round + 1,
           text: "(left the game)",
+          language: "fr",
         },
       });
     }

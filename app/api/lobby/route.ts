@@ -27,12 +27,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Catégorie introuvable" }, { status: 404 });
   }
 
-  const questionCount = await prisma.question.count({
-    where: { categoryId: category.id, language },
-  });
+  // Every player picks their own UI language independently mid-game (see
+  // lib/db/current-turn.ts), so the category must have enough questions in
+  // BOTH languages, not just the one selected at creation time.
+  const [frCount, enCount] = await Promise.all([
+    prisma.question.count({ where: { categoryId: category.id, language: "fr" } }),
+    prisma.question.count({ where: { categoryId: category.id, language: "en" } }),
+  ]);
+  const questionCount = Math.min(frCount, enCount);
   if (questionCount === 0) {
     return NextResponse.json(
-      { error: "Cette catégorie n'est pas disponible dans cette langue" },
+      { error: "Cette catégorie n'est pas disponible dans les deux langues" },
       { status: 400 },
     );
   }

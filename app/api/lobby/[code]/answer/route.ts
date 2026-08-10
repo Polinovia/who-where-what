@@ -50,7 +50,7 @@ export async function POST(
     );
   }
 
-  const turn = await resolveCurrentTurn(lobby, lobby.players, player);
+  const turn = await resolveCurrentTurn(lobby, lobby.players, player, parsed.data.language);
   if (!turn) {
     return NextResponse.json(
       { error: "Impossible de déterminer l'histoire à écrire" },
@@ -67,6 +67,7 @@ export async function POST(
         playerId: player.id,
         order: round + 1,
         text: parsed.data.text,
+        language: parsed.data.language,
       },
     });
   } catch (err) {

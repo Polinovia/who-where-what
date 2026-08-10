@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { resolveCurrentTurn } from "@/lib/db/current-turn";
+import { languageSchema } from "@/lib/validation/lobby";
 
 export async function GET(
   request: NextRequest,
@@ -8,6 +9,8 @@ export async function GET(
 ) {
   const { code } = await params;
   const playerId = request.nextUrl.searchParams.get("playerId");
+  const parsedLanguage = languageSchema.safeParse(request.nextUrl.searchParams.get("language"));
+  const language = parsedLanguage.success ? parsedLanguage.data : "fr";
 
   if (!playerId) {
     return NextResponse.json({ error: "playerId requis" }, { status: 400 });
@@ -55,7 +58,7 @@ export async function GET(
     );
   }
 
-  const turn = await resolveCurrentTurn(lobby, lobby.players, player);
+  const turn = await resolveCurrentTurn(lobby, lobby.players, player, language);
   if (!turn) {
     return NextResponse.json(
       { error: "Impossible de déterminer l'histoire à écrire" },

@@ -11,7 +11,7 @@ export default function PlayPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [text, setText] = useState("");
   const [submittedRound, setSubmittedRound] = useState<number | null>(null);
@@ -25,8 +25,8 @@ export default function PlayPage() {
   );
 
   const { data } = useQuery({
-    queryKey: ["question", code, identity?.playerId],
-    queryFn: () => getCurrentQuestion(code, identity!.playerId),
+    queryKey: ["question", code, identity?.playerId, language],
+    queryFn: () => getCurrentQuestion(code, identity!.playerId, language),
     enabled: !!identity,
     refetchInterval: 1500,
   });
@@ -68,7 +68,7 @@ export default function PlayPage() {
   const submitMutation = useMutation({
     mutationFn: () => {
       if (data?.status !== "answer") throw new Error(t.common.unexpectedError);
-      return submitAnswer(code, { playerId: identity!.playerId, text });
+      return submitAnswer(code, { playerId: identity!.playerId, text, language });
     },
     onSuccess: () => {
       if (data?.status === "answer") setSubmittedRound(data.round);

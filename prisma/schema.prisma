@@ -162,9 +162,10 @@ model StoryLike {
 }
 
 model Answer {
-  id    String @id @default(cuid())
-  text  String
-  order Int
+  id       String @id @default(cuid())
+  text     String
+  order    Int
+  language String @default("fr")
 
   storyId String
   story   Story  @relation(fields: [storyId], references: [id])
