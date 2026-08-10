@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { addFriend, listFriends, searchPlayerByCode } from "@/lib/api-client";
+import { addFriend, getUnseenAchievements, listFriends, searchPlayerByCode } from "@/lib/api-client";
 import { useLanguage } from "@/lib/i18n/language-context";
+import { AchievementToasts } from "@/components/achievement-toast";
 
 export default function FriendsPage() {
   const { data: session, status } = useSession();
@@ -14,6 +15,7 @@ export default function FriendsPage() {
 
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [unseenTypes, setUnseenTypes] = useState<string[]>([]);
 
   const { data } = useQuery({
     queryKey: ["friends"],
@@ -26,15 +28,18 @@ export default function FriendsPage() {
       const { player } = await searchPlayerByCode(playerCode);
       return addFriend({ userId: player.id });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       setCode("");
       queryClient.invalidateQueries({ queryKey: ["friends"] });
+      const { achievements } = await getUnseenAchievements();
+      setUnseenTypes(achievements.map((a) => a.type));
     },
     onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   return (
     <div className="flex flex-1 items-center justify-center bg-[#e8e1d0] px-4 py-16">
+      <AchievementToasts types={unseenTypes} />
       <div className="relative w-full max-w-md rounded-2xl bg-[#faf7f0] px-10 py-14 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.25)]">
         <span
           aria-hidden

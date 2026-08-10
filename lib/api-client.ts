@@ -172,6 +172,11 @@ export async function listAchievements() {
   return parseJson<{ achievements: Achievement[] }>(res);
 }
 
+export async function getUnseenAchievements() {
+  const res = await fetch("/api/achievements/unseen");
+  return parseJson<{ achievements: Achievement[] }>(res);
+}
+
 type Profile = {
   id: string;
   name: string;

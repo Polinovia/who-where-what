@@ -42,6 +42,16 @@ export const LEVEL_MILESTONES: { level: number; type: AchievementType }[] = [
   { level: 100, type: "LEVEL_100" },
 ];
 
+// Threshold for each achievement type whose translated description is a
+// function taking a number (e.g. "Finish 3 games with the same friend").
+export const THRESHOLDS: Partial<Record<AchievementType, number>> = {
+  ACCOMPLICE: ACCOMPLICE_THRESHOLD,
+  STORYTELLER: STORYTELLER_THRESHOLD,
+  SOCIAL_BUTTERFLY: SOCIAL_BUTTERFLY_THRESHOLD,
+  CROWD_PLEASER: CROWD_PLEASER_THRESHOLD,
+  WORDSMITH: WORDSMITH_THRESHOLD,
+};
+
 export const ACHIEVEMENT_INFO: Record<
   AchievementType,
   { title: string; description: string; icon: LucideIcon }

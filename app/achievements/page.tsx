@@ -4,25 +4,10 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { listAchievements } from "@/lib/api-client";
-import {
-  ACCOMPLICE_THRESHOLD,
-  ACHIEVEMENT_INFO,
-  CROWD_PLEASER_THRESHOLD,
-  SOCIAL_BUTTERFLY_THRESHOLD,
-  STORYTELLER_THRESHOLD,
-  WORDSMITH_THRESHOLD,
-} from "@/lib/achievement-info";
+import { ACHIEVEMENT_INFO, THRESHOLDS } from "@/lib/achievement-info";
 import { useLanguage } from "@/lib/i18n/language-context";
 
 const ALL_TYPES = Object.keys(ACHIEVEMENT_INFO) as (keyof typeof ACHIEVEMENT_INFO)[];
-
-const THRESHOLDS: Partial<Record<(typeof ALL_TYPES)[number], number>> = {
-  ACCOMPLICE: ACCOMPLICE_THRESHOLD,
-  STORYTELLER: STORYTELLER_THRESHOLD,
-  SOCIAL_BUTTERFLY: SOCIAL_BUTTERFLY_THRESHOLD,
-  CROWD_PLEASER: CROWD_PLEASER_THRESHOLD,
-  WORDSMITH: WORDSMITH_THRESHOLD,
-};
 
 export default function AchievementsPage() {
   const { data: session, status } = useSession();

@@ -1,21 +1,20 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
-import { createLobby, getFinishedStories, getLobby, likeStory } from "@/lib/api-client";
+import { createLobby, getFinishedStories, getLobby, getUnseenAchievements, likeStory } from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, savePlayerIdentity, subscribePlayerIdentity } from "@/lib/player-identity";
 import { useLanguage } from "@/lib/i18n/language-context";
-
-function toSentence(text: string) {
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
+import { AchievementToasts } from "@/components/achievement-toast";
 
 export default function ResultsPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
+  const { data: session } = useSession();
   const queryClient = useQueryClient();
   const { t, language } = useLanguage();
 
@@ -29,6 +28,12 @@ export default function ResultsPage() {
     queryKey: ["stories", code, identity?.playerId, language],
     queryFn: () => getFinishedStories(code, identity!.playerId, language),
     enabled: !!identity,
+  });
+
+  const { data: unseenData } = useQuery({
+    queryKey: ["achievements", "unseen"],
+    queryFn: getUnseenAchievements,
+    enabled: !!session?.user && !!data,
   });
 
   const likeMutation = useMutation({
@@ -80,10 +85,16 @@ export default function ResultsPage() {
     }
   }, [code, router]);
 
+  const unseenTypes = useMemo(
+    () => unseenData?.achievements.map((a) => a.type) ?? [],
+    [unseenData],
+  );
+
   if (!identity) return null;
 
   return (
     <div className="flex flex-1 items-center justify-center bg-[#e8e1d0] px-4 py-16">
+      <AchievementToasts types={unseenTypes} />
       <div className="w-full max-w-2xl">
         <h1 className="text-center font-[family-name:var(--font-marker)] text-3xl text-stone-900">
           {t.results.title}
@@ -111,7 +122,7 @@ export default function ResultsPage() {
               </p>
 
               <p className="mt-4 font-[family-name:var(--font-serif)] leading-relaxed text-stone-800">
-                {story.answers.map((answer) => `${toSentence(answer.text)}.`).join(" ")}
+                {story.answers.map((answer) => answer.text).join(" ")}
               </p>
 
               <button

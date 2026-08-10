@@ -52,6 +52,7 @@ model UserAchievement {
   type          AchievementType
   relatedUserId String          @default("")
   unlockedAt    DateTime        @default(now())
+  seen          Boolean         @default(false)
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
