@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { z } from "zod";
 import { resolveCurrentTurn } from "@/lib/db/current-turn";
+import { translateLobbyName } from "@/lib/translate";
 
 const kickSchema = z.object({
   requesterPlayerId: z.string().min(1),
@@ -13,6 +14,7 @@ export async function POST(
   { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
+  const viewerLanguage = request.nextUrl.searchParams.get("language");
   const body = await request.json().catch(() => null);
   const parsed = kickSchema.safeParse(body);
 
@@ -70,7 +72,7 @@ export async function POST(
       include: { players: true },
     });
 
-    return NextResponse.json({ lobby: updatedLobby });
+    return NextResponse.json({ lobby: await translateLobbyName(updatedLobby!, viewerLanguage) });
   }
 
   // Mid-game: don't delete the player (their answers/stories are still
@@ -136,5 +138,5 @@ export async function POST(
     include: { players: true },
   });
 
-  return NextResponse.json({ lobby: updatedLobby });
+  return NextResponse.json({ lobby: await translateLobbyName(updatedLobby!, viewerLanguage) });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { startLobby } from "@/lib/db/start-lobby";
+import { translateLobbyName } from "@/lib/translate";
 import { z } from "zod";
 
 const startSchema = z.object({ requesterPlayerId: z.string().min(1) });
@@ -10,6 +11,7 @@ export async function POST(
   { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
+  const viewerLanguage = request.nextUrl.searchParams.get("language");
   const body = await request.json().catch(() => null);
   const parsed = startSchema.safeParse(body);
 
@@ -55,5 +57,5 @@ export async function POST(
     startLobby(tx, lobby.id, lobby.players),
   );
 
-  return NextResponse.json({ lobby: updatedLobby });
+  return NextResponse.json({ lobby: await translateLobbyName(updatedLobby, viewerLanguage) });
 }

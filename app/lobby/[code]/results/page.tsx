@@ -17,7 +17,7 @@ export default function ResultsPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const identity = useSyncExternalStore(
     subscribePlayerIdentity,
@@ -26,8 +26,8 @@ export default function ResultsPage() {
   );
 
   const { data, isError } = useQuery({
-    queryKey: ["stories", code, identity?.playerId],
-    queryFn: () => getFinishedStories(code, identity!.playerId),
+    queryKey: ["stories", code, identity?.playerId, language],
+    queryFn: () => getFinishedStories(code, identity!.playerId, language),
     enabled: !!identity,
   });
 
@@ -35,7 +35,7 @@ export default function ResultsPage() {
     mutationFn: (storyId: string) => likeStory(code, storyId, identity!.playerId),
     onSuccess: ({ likeCount, liked }, storyId) => {
       queryClient.setQueryData(
-        ["stories", code, identity?.playerId],
+        ["stories", code, identity?.playerId, language],
         (current: typeof data) =>
           current && {
             stories: current.stories.map((story) =>

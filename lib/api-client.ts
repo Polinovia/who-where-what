@@ -31,7 +31,13 @@ type Lobby = {
 async function parseJson<T>(response: Response): Promise<T> {
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data?.error?.formErrors?.[0] ?? data?.error ?? "Erreur inattendue");
+    const error = data?.error;
+    const fieldErrors = (error?.fieldErrors ?? {}) as Record<string, string[]>;
+    const message =
+      typeof error === "string"
+        ? error
+        : (error?.formErrors?.[0] ?? Object.values(fieldErrors)[0]?.[0] ?? "Erreur inattendue");
+    throw new Error(message);
   }
   return data as T;
 }
@@ -54,13 +60,15 @@ export async function joinLobby(input: JoinLobbyInput) {
   return parseJson<{ lobby: Lobby; player: { id: string; pseudo: string } }>(res);
 }
 
-export async function getLobby(code: string) {
-  const res = await fetch(`/api/lobby/${code}`);
+export async function getLobby(code: string, language?: string) {
+  const qs = language ? `?language=${encodeURIComponent(language)}` : "";
+  const res = await fetch(`/api/lobby/${code}${qs}`);
   return parseJson<{ lobby: Lobby }>(res);
 }
 
-export async function setReady(code: string, input: SetReadyInput) {
-  const res = await fetch(`/api/lobby/${code}/ready`, {
+export async function setReady(code: string, input: SetReadyInput, language?: string) {
+  const qs = language ? `?language=${encodeURIComponent(language)}` : "";
+  const res = await fetch(`/api/lobby/${code}/ready${qs}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -102,9 +110,12 @@ type FinishedStory = {
   likedByMe: boolean;
 };
 
-export async function getFinishedStories(code: string, playerId?: string) {
-  const query = playerId ? `?playerId=${encodeURIComponent(playerId)}` : "";
-  const res = await fetch(`/api/lobby/${code}/stories${query}`);
+export async function getFinishedStories(code: string, playerId?: string, language?: string) {
+  const query = new URLSearchParams();
+  if (playerId) query.set("playerId", playerId);
+  if (language) query.set("language", language);
+  const qs = query.toString();
+  const res = await fetch(`/api/lobby/${code}/stories${qs ? `?${qs}` : ""}`);
   return parseJson<{ stories: FinishedStory[] }>(res);
 }
 
@@ -140,8 +151,13 @@ export async function addFriend(input: AddFriendInput) {
   return parseJson<{ friend: Friend }>(res);
 }
 
-export async function startLobbyNow(code: string, input: { requesterPlayerId: string }) {
-  const res = await fetch(`/api/lobby/${code}/start`, {
+export async function startLobbyNow(
+  code: string,
+  input: { requesterPlayerId: string },
+  language?: string,
+) {
+  const qs = language ? `?language=${encodeURIComponent(language)}` : "";
+  const res = await fetch(`/api/lobby/${code}/start${qs}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -191,8 +207,10 @@ export async function searchPlayerByCode(code: string) {
 export async function kickPlayer(
   code: string,
   input: { requesterPlayerId: string; targetPlayerId: string },
+  language?: string,
 ) {
-  const res = await fetch(`/api/lobby/${code}/kick`, {
+  const qs = language ? `?language=${encodeURIComponent(language)}` : "";
+  const res = await fetch(`/api/lobby/${code}/kick${qs}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { translateLobbyName } from "@/lib/translate";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
+  const viewerLanguage = request.nextUrl.searchParams.get("language");
 
   const lobby = await prisma.lobby.findUnique({
     where: { code: code.toUpperCase() },
@@ -16,5 +18,5 @@ export async function GET(
     return NextResponse.json({ error: "Lobby introuvable" }, { status: 404 });
   }
 
-  return NextResponse.json({ lobby });
+  return NextResponse.json({ lobby: await translateLobbyName(lobby, viewerLanguage) });
 }

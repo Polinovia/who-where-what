@@ -14,7 +14,7 @@ export default function LobbyWaitingRoomPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [copied, setCopied] = useState(false);
   const [addedFriendIds, setAddedFriendIds] = useState<string[]>([]);
@@ -27,8 +27,8 @@ export default function LobbyWaitingRoomPage() {
   );
 
   const { data } = useQuery({
-    queryKey: ["lobby", code],
-    queryFn: () => getLobby(code),
+    queryKey: ["lobby", code, language],
+    queryFn: () => getLobby(code, language),
     enabled: !!identity,
     refetchInterval: 1500,
   });
@@ -48,26 +48,26 @@ export default function LobbyWaitingRoomPage() {
 
   const readyMutation = useMutation({
     mutationFn: (nextReady: boolean) =>
-      setReady(code, { playerId: identity!.playerId, ready: nextReady }),
+      setReady(code, { playerId: identity!.playerId, ready: nextReady }, language),
     onSuccess: ({ lobby }) => {
-      queryClient.setQueryData(["lobby", code], { lobby });
+      queryClient.setQueryData(["lobby", code, language], { lobby });
     },
     onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   const kickMutation = useMutation({
     mutationFn: (targetPlayerId: string) =>
-      kickPlayer(code, { requesterPlayerId: identity!.playerId, targetPlayerId }),
+      kickPlayer(code, { requesterPlayerId: identity!.playerId, targetPlayerId }, language),
     onSuccess: ({ lobby }) => {
-      queryClient.setQueryData(["lobby", code], { lobby });
+      queryClient.setQueryData(["lobby", code, language], { lobby });
     },
     onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
 
   const startMutation = useMutation({
-    mutationFn: () => startLobbyNow(code, { requesterPlayerId: identity!.playerId }),
+    mutationFn: () => startLobbyNow(code, { requesterPlayerId: identity!.playerId }, language),
     onSuccess: ({ lobby }) => {
-      queryClient.setQueryData(["lobby", code], { lobby });
+      queryClient.setQueryData(["lobby", code, language], { lobby });
     },
     onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
