@@ -3,21 +3,18 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getLobby, setReady, kickPlayer, addFriend, startLobbyNow } from "@/lib/api-client";
+import { getLobby, setReady, kickPlayer, startLobbyNow } from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
 import { useLanguage } from "@/lib/i18n/language-context";
 
 export default function LobbyWaitingRoomPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
-  const { data: session } = useSession();
   const queryClient = useQueryClient();
   const { t, language } = useLanguage();
 
   const [copied, setCopied] = useState(false);
-  const [addedFriendIds, setAddedFriendIds] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const identity = useSyncExternalStore(
@@ -68,14 +65,6 @@ export default function LobbyWaitingRoomPage() {
     mutationFn: () => startLobbyNow(code, { requesterPlayerId: identity!.playerId }, language),
     onSuccess: ({ lobby }) => {
       queryClient.setQueryData(["lobby", code, language], { lobby });
-    },
-    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
-  });
-
-  const addFriendMutation = useMutation({
-    mutationFn: (userId: string) => addFriend({ userId }),
-    onSuccess: (_, userId) => {
-      setAddedFriendIds((current) => [...current, userId]);
     },
     onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
@@ -157,15 +146,6 @@ export default function LobbyWaitingRoomPage() {
         <ul className="mt-8 flex flex-col gap-2">
           {lobby?.players.map((player) => {
             const isSelf = player.id === me?.id;
-            const isLoggedIn = !!session?.user?.id;
-            const alreadyFriends =
-              !!player.userId && addedFriendIds.includes(player.userId);
-            const canAddFriend =
-              isLoggedIn &&
-              !isSelf &&
-              !!player.userId &&
-              player.userId !== session?.user?.id &&
-              !alreadyFriends;
 
             return (
               <li
@@ -183,36 +163,6 @@ export default function LobbyWaitingRoomPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  {!isSelf && player.userId && (
-                    <button
-                      type="button"
-                      disabled={!isLoggedIn || alreadyFriends}
-                      onClick={() => canAddFriend && addFriendMutation.mutate(player.userId!)}
-                      title={
-                        !isLoggedIn
-                          ? t.waitingRoom.logInToAddFriends
-                          : alreadyFriends
-                            ? t.waitingRoom.friendAdded
-                            : t.waitingRoom.addFriend
-                      }
-                      aria-label={
-                        !isLoggedIn
-                          ? t.waitingRoom.logInToAddFriends
-                          : alreadyFriends
-                            ? t.waitingRoom.friendAdded
-                            : t.waitingRoom.addFriend
-                      }
-                      className={`flex h-6 w-6 items-center justify-center rounded-full border text-sm leading-none transition-colors ${
-                        !isLoggedIn
-                          ? "cursor-not-allowed border-stone-300 text-stone-400"
-                          : alreadyFriends
-                            ? "cursor-default border-green-600 bg-green-600 text-white"
-                            : "border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-                      }`}
-                    >
-                      {alreadyFriends ? "✓" : "+"}
-                    </button>
-                  )}
                   {me?.isHost && !isSelf && (
                     <button
                       type="button"

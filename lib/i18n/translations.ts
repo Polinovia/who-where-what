@@ -90,9 +90,6 @@ type TranslationSet = {
     tapToCopy: string;
     you: string;
     host: string;
-    logInToAddFriends: string;
-    friendAdded: string;
-    addFriend: string;
     kick: string;
     readyLabel: string;
     notReadyLabel: string;
@@ -265,9 +262,6 @@ export const translations: Record<Language, TranslationSet> = {
       tapToCopy: "Tap to copy",
       you: " (you)",
       host: "host",
-      logInToAddFriends: "Log in to add friends",
-      friendAdded: "Friend added",
-      addFriend: "Add friend",
       kick: "kick",
       readyLabel: "Ready",
       notReadyLabel: "Not ready",
@@ -447,9 +441,6 @@ export const translations: Record<Language, TranslationSet> = {
       tapToCopy: "Toucher pour copier",
       you: " (toi)",
       host: "hôte",
-      logInToAddFriends: "Connecte-toi pour ajouter des amis",
-      friendAdded: "Ami ajouté",
-      addFriend: "Ajouter en ami",
       kick: "exclure",
       readyLabel: "Prêt",
       notReadyLabel: "Pas prêt",
