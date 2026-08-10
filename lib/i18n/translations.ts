@@ -7,6 +7,7 @@ type TranslationSet = {
     quit: string;
   };
   home: {
+    title: string;
     tagline: string;
     createLobby: string;
     howToPlay: string;
@@ -178,6 +179,7 @@ export const translations: Record<Language, TranslationSet> = {
       quit: "Quit",
     },
     home: {
+      title: "WHO, WHERE, WHAT?",
       tagline: "Create ridiculous stories with your friends.",
       createLobby: "Create lobby",
       howToPlay: "How to play ?",
@@ -361,6 +363,7 @@ export const translations: Record<Language, TranslationSet> = {
       quit: "Quitter",
     },
     home: {
+      title: "QUI, OÙ, QUOI ?",
       tagline: "Crée des histoires délirantes avec tes amis.",
       createLobby: "Créer une partie",
       howToPlay: "Comment jouer ?",

@@ -21,7 +21,7 @@ export default function Home() {
 
         <main className="mt-20 flex flex-col items-center text-center">
           <h1 className="font-[family-name:var(--font-marker)] text-5xl leading-tight text-stone-900 sm:text-6xl">
-            WHO, WHERE, WHAT?
+            {t.home.title}
           </h1>
           <p className="mt-4 font-[family-name:var(--font-serif)] italic text-lg text-stone-600">
             {t.home.tagline}
