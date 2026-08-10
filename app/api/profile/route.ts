@@ -44,13 +44,12 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { bio, avatarUrl } = parsed.data;
+  const { bio } = parsed.data;
 
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: {
       ...(bio !== undefined ? { bio: bio || null } : {}),
-      ...(avatarUrl !== undefined ? { avatarUrl: avatarUrl || null } : {}),
     },
     select: profileSelect,
   });

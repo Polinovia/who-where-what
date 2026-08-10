@@ -197,6 +197,13 @@ export async function updateProfile(input: UpdateProfileInput) {
   return parseJson<{ user: Profile }>(res);
 }
 
+export async function uploadAvatar(file: Blob) {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch("/api/profile/avatar", { method: "POST", body: form });
+  return parseJson<{ user: Profile }>(res);
+}
+
 type PlayerSearchResult = { id: string; name: string; playerCode: string; avatarUrl: string | null };
 
 export async function searchPlayerByCode(code: string) {

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getProfile, listAchievements, updateProfile } from "@/lib/api-client";
+import { getProfile, listAchievements, updateProfile, uploadAvatar } from "@/lib/api-client";
 import { ACHIEVEMENT_INFO } from "@/lib/achievement-info";
 import { getLevelProgress } from "@/lib/player-level";
+import { resizeImage } from "@/lib/resize-image";
 import { useLanguage } from "@/lib/i18n/language-context";
 
 const ALL_TYPES = Object.keys(ACHIEVEMENT_INFO) as (keyof typeof ACHIEVEMENT_INFO)[];
@@ -30,17 +31,27 @@ export default function ProfilePage() {
 
   const [editing, setEditing] = useState(false);
   const [bio, setBio] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateProfileMutation = useMutation({
-    mutationFn: () => updateProfile({ bio, avatarUrl }),
+    mutationFn: () => updateProfile({ bio }),
     onSuccess: ({ user }) => {
       queryClient.setQueryData(["profile"], (current: typeof profileData) =>
         current ? { ...current, user } : current,
       );
       setEditing(false);
+    },
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
+  });
+
+  const uploadAvatarMutation = useMutation({
+    mutationFn: async (file: File) => uploadAvatar(await resizeImage(file)),
+    onSuccess: ({ user }) => {
+      queryClient.setQueryData(["profile"], (current: typeof profileData) =>
+        current ? { ...current, user } : current,
+      );
     },
     onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
   });
@@ -90,6 +101,34 @@ export default function ProfilePage() {
                 <div className="flex h-20 w-20 items-center justify-center rounded-full border border-stone-300 bg-stone-200 font-[family-name:var(--font-marker)] text-2xl text-stone-600">
                   {user.name.slice(0, 1).toUpperCase()}
                 </div>
+              )}
+
+              {editing && (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    name="avatar"
+                    aria-label={t.profile.changePhoto}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) uploadAvatarMutation.mutate(file);
+                      e.target.value = "";
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadAvatarMutation.isPending}
+                    className="mt-2 text-xs text-stone-500 underline hover:text-stone-800 disabled:opacity-50"
+                  >
+                    {uploadAvatarMutation.isPending
+                      ? t.profile.uploadingPhoto
+                      : t.profile.changePhoto}
+                  </button>
+                </>
               )}
 
               <p className="mt-3 font-[family-name:var(--font-serif)] text-lg text-stone-800">
@@ -153,18 +192,6 @@ export default function ProfilePage() {
               <div className="mt-6 flex flex-col gap-3">
                 <label className="flex flex-col gap-1.5">
                   <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-                    {t.profile.avatarUrl}
-                  </span>
-                  <input
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="h-11 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
-                  />
-                </label>
-
-                <label className="flex flex-col gap-1.5">
-                  <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
                     {t.profile.bio}
                   </span>
                   <textarea
@@ -209,7 +236,6 @@ export default function ProfilePage() {
                   type="button"
                   onClick={() => {
                     setBio((user.bio ?? "").slice(0, 120));
-                    setAvatarUrl(user.avatarUrl ?? "");
                     setEditing(true);
                   }}
                   className="text-sm text-stone-500 underline hover:text-stone-800"
