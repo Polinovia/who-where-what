@@ -2,6 +2,8 @@ import "dotenv/config";
 import { PrismaClient } from "../lib/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { DEFAULT_CATEGORY_NAME } from "../lib/categories";
+import { PLACEHOLDERS_FR } from "./placeholders";
+import { translateText } from "../lib/translate";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -213,6 +215,22 @@ const CATEGORIES_BY_LANGUAGE: Record<string, Record<string, string[]>> = {
   en: CATEGORIES_EN,
 };
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// The free DeepL tier rate-limits bursts hard. translateText() itself
+// swallows failures and falls back to the untranslated source text — fine
+// for runtime, but a seed run needs to actually get a translation, so retry
+// with backoff here instead of silently seeding French text as "English".
+async function translateWithRetry(text: string, targetLang: string, attempts = 5): Promise<string> {
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const result = await translateText(text, "fr", targetLang);
+    if (result !== text) return result;
+    await sleep(1000 * (attempt + 1));
+  }
+  console.warn(`Translation kept failing for "${text}" — leaving it as French.`);
+  return text;
+}
+
 async function main() {
   for (const [language, categories] of Object.entries(CATEGORIES_BY_LANGUAGE)) {
     for (const [name, questions] of Object.entries(categories)) {
@@ -223,12 +241,23 @@ async function main() {
       });
 
       for (const [index, text] of questions.entries()) {
+        const placeholdersFr = PLACEHOLDERS_FR[name][index];
+        const placeholders: string[] = [];
+        if (language === "fr") {
+          placeholders.push(...placeholdersFr);
+        } else {
+          for (const p of placeholdersFr) {
+            placeholders.push(await translateWithRetry(p, language));
+            await sleep(150);
+          }
+        }
+
         await prisma.question.upsert({
           where: {
             categoryId_language_order: { categoryId: category.id, language, order: index + 1 },
           },
-          update: { text },
-          create: { text, order: index + 1, language, categoryId: category.id },
+          update: { text, placeholders },
+          create: { text, order: index + 1, language, categoryId: category.id, placeholders },
         });
       }
 

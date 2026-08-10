@@ -126,15 +126,12 @@ export default function PlayPage() {
               {data.question.text}
             </h1>
 
-            <textarea
-              required
-              autoFocus
+            <AnswerTextarea
+              key={data.question.id}
               value={text}
-              onChange={(e) => setText(e.target.value)}
-              maxLength={120}
-              rows={3}
-              placeholder={t.play.answerPlaceholder}
-              className="resize-none rounded-xl border border-stone-300 px-4 py-3 text-stone-800 outline-none focus:border-stone-500"
+              onChange={setText}
+              options={data.question.placeholders}
+              fallbackPlaceholder={t.play.answerPlaceholder}
             />
 
             {error && <p className="text-sm text-red-600">{error}</p>}
@@ -156,7 +153,7 @@ export default function PlayPage() {
             </p>
             <ul className="mt-2 flex flex-col gap-1">
               {lobby?.players
-                .filter((p) => p.id !== me.id && !p.kicked)
+                .filter((p) => p.id !== me.id && !p.kicked && !p.isBot)
                 .map((p) => (
                   <li key={p.id} className="flex items-center justify-between text-sm">
                     <span className="text-stone-600">{p.pseudo}</span>
@@ -174,5 +171,38 @@ export default function PlayPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Picking a random placeholder is impure, so it can't happen during a normal
+// render — the caller keys this component by question id, so the lazy
+// useState initializer (allowed to run impure one-time setup) picks fresh
+// exactly once per question, on mount, with no extra render involved.
+function AnswerTextarea({
+  value,
+  onChange,
+  options,
+  fallbackPlaceholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+  fallbackPlaceholder: string;
+}) {
+  const [placeholder] = useState(() =>
+    options.length > 0 ? options[Math.floor(Math.random() * options.length)] : null,
+  );
+
+  return (
+    <textarea
+      required
+      autoFocus
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      maxLength={120}
+      rows={3}
+      placeholder={placeholder ?? fallbackPlaceholder}
+      className="resize-none rounded-xl border border-stone-300 px-4 py-3 text-stone-800 outline-none focus:border-stone-500"
+    />
   );
 }

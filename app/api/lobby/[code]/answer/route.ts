@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { submitAnswerSchema } from "@/lib/validation/lobby";
 import { resolveCurrentTurn } from "@/lib/db/current-turn";
 import { checkGameFinishedAchievements } from "@/lib/db/achievements";
+import { submitBotAnswers } from "@/lib/db/bots";
 
 export async function POST(
   request: NextRequest,
@@ -101,6 +102,8 @@ export async function POST(
 
     if (finished) {
       await checkGameFinishedAchievements(lobby.id);
+    } else {
+      await submitBotAnswers(prisma, lobby, lobby.players, nextRound);
     }
   }
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { JoinLobbyButton } from "@/components/join-lobby-button";
+import { PlaySoloButton } from "@/components/play-solo-button";
 import { HomeHeader } from "@/components/auth-nav";
 import { useLanguage } from "@/lib/i18n/language-context";
 
@@ -37,6 +38,8 @@ export default function Home() {
             </Link>
 
             <JoinLobbyButton />
+
+            <PlaySoloButton />
           </div>
 
           <div className="mt-12 flex flex-col items-center gap-1">

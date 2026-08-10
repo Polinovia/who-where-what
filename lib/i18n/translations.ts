@@ -10,6 +10,8 @@ type TranslationSet = {
     title: string;
     tagline: string;
     createLobby: string;
+    playSolo: string;
+    guestPseudo: string;
     howToPlay: string;
     players: string;
     feedback: string;
@@ -131,6 +133,7 @@ type TranslationSet = {
     logInToSee: string;
     logIn: string;
     level: (level: number) => string;
+    pointsProgress: (current: number, needed: number) => string;
     friends: string;
     gamesPlayed: string;
     achievements: string;
@@ -177,6 +180,8 @@ export const translations: Record<Language, TranslationSet> = {
       title: "WHO, WHERE, WHAT?",
       tagline: "Create ridiculous stories with your friends.",
       createLobby: "Create lobby",
+      playSolo: "Play solo (vs bots)",
+      guestPseudo: "Player",
       howToPlay: "How to play ?",
       players: "2 to 12 players",
       feedback: "Give me feedback",
@@ -303,6 +308,7 @@ export const translations: Record<Language, TranslationSet> = {
       logInToSee: "to see your profile.",
       logIn: "Log in",
       level: (level: number) => `Level ${level}`,
+      pointsProgress: (current: number, needed: number) => `${current} / ${needed} points to next level`,
       friends: "Friends",
       gamesPlayed: "Games played",
       achievements: "Achievements",
@@ -356,6 +362,8 @@ export const translations: Record<Language, TranslationSet> = {
       title: "QUI, OÙ, QUOI ?",
       tagline: "Crée des histoires délirantes avec tes amis.",
       createLobby: "Créer une partie",
+      playSolo: "Jouer seul (contre des bots)",
+      guestPseudo: "Joueur",
       howToPlay: "Comment jouer ?",
       players: "2 à 12 joueurs",
       feedback: "Donne-moi ton avis",
@@ -482,6 +490,7 @@ export const translations: Record<Language, TranslationSet> = {
       logInToSee: "pour voir ton profil.",
       logIn: "Se connecter",
       level: (level: number) => `Niveau ${level}`,
+      pointsProgress: (current: number, needed: number) => `${current} / ${needed} points pour le niveau suivant`,
       friends: "Amis",
       gamesPlayed: "Parties jouées",
       achievements: "Succès",
