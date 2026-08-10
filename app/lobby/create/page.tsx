@@ -13,7 +13,7 @@ const QUESTION_PRESETS = [8, 10, 12] as const;
 export default function CreateLobbyPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [pseudoOverride, setPseudoOverride] = useState<string | null>(null);
   const pseudo = pseudoOverride ?? session?.user?.name ?? "";
@@ -51,6 +51,7 @@ export default function CreateLobbyPage() {
         maxPlayers,
         totalQuestions,
         categoryId: categoryId || undefined,
+        language,
       });
 
       const host = lobby.players.find((p) => p.isHost) ?? lobby.players[0];
