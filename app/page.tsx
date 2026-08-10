@@ -54,7 +54,7 @@ export default function Home() {
 
         <footer className="mt-16 text-center">
           <a
-            href="mailto:maximilien01993@gmail.com?subject=Who%2C%20Where%2C%20What%20feedback"
+            href="mailto:polya.bevz02@gmail.com?subject=Who%2C%20Where%2C%20What%20feedback"
             className="font-[family-name:var(--font-script)] text-xl text-stone-500 hover:text-stone-700"
           >
             {t.home.feedback}
