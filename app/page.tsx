@@ -57,7 +57,7 @@ export default function Home() {
 
         <footer className="mt-16 text-center">
           <a
-            href="https://portfolio-polina.netlify.app/#projects"
+            href="https://portfolio-polina.netlify.app/#projects/who-where-what"
             target="_blank"
             rel="noopener noreferrer"
             className="font-[family-name:var(--font-script)] text-xl text-stone-500 hover:text-stone-700"
