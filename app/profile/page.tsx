@@ -245,7 +245,20 @@ export default function ProfilePage() {
               </div>
             )}
           </>
-        ) : null}
+        ) : (
+          <div className="mt-6 flex animate-pulse flex-col items-center">
+            <div className="h-20 w-20 rounded-full bg-stone-200" />
+            <div className="mt-3 h-5 w-28 rounded bg-stone-200" />
+            <div className="mt-2 h-5 w-20 rounded-full bg-stone-200" />
+            <div className="mt-2 h-5 w-24 rounded-full bg-stone-200" />
+            <div className="mt-4 flex gap-6">
+              <div className="h-10 w-10 rounded bg-stone-200" />
+              <div className="h-10 w-10 rounded bg-stone-200" />
+              <div className="h-10 w-10 rounded bg-stone-200" />
+            </div>
+            <div className="mt-6 h-4 w-40 rounded bg-stone-200" />
+          </div>
+        )}
       </div>
     </div>
   );
