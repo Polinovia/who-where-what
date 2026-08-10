@@ -125,9 +125,6 @@ type TranslationSet = {
     title: string;
     logInToManage: string;
     logIn: string;
-    byEmail: string;
-    byPlayerId: string;
-    friendEmailPlaceholder: string;
     add: string;
     friendIdPlaceholder: string;
     noFriendsYet: string;
@@ -303,9 +300,6 @@ export const translations: Record<Language, TranslationSet> = {
       title: "Friends",
       logInToManage: "to manage your friends.",
       logIn: "Log in",
-      byEmail: "By email",
-      byPlayerId: "By player ID",
-      friendEmailPlaceholder: "Friend's email",
       add: "Add",
       friendIdPlaceholder: "Friend's player ID",
       noFriendsYet: "No friends yet — add one above.",
@@ -488,9 +482,6 @@ export const translations: Record<Language, TranslationSet> = {
       title: "Amis",
       logInToManage: "pour gérer tes amis.",
       logIn: "Se connecter",
-      byEmail: "Par email",
-      byPlayerId: "Par identifiant",
-      friendEmailPlaceholder: "Email de ton ami",
       add: "Ajouter",
       friendIdPlaceholder: "Identifiant de ton ami",
       noFriendsYet: "Pas encore d'amis — ajoute-en un ci-dessus.",

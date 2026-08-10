@@ -39,10 +39,7 @@ export async function POST(request: NextRequest) {
 
   const userId = session.user.id;
 
-  const friend =
-    "friendEmail" in parsed.data
-      ? await prisma.user.findUnique({ where: { email: parsed.data.friendEmail } })
-      : await prisma.user.findUnique({ where: { id: parsed.data.userId } });
+  const friend = await prisma.user.findUnique({ where: { id: parsed.data.userId } });
 
   if (!friend) {
     return NextResponse.json(
