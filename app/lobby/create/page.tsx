@@ -21,14 +21,13 @@ export default function CreateLobbyPage() {
   const [maxPlayers, setMaxPlayers] = useState(6);
   const [totalQuestions, setTotalQuestions] = useState<number>(8);
   const [customQuestions, setCustomQuestions] = useState(false);
-  const [language, setLanguage] = useState<"fr" | "en">("fr");
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [categoryId, setCategoryId] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    listCategories(language)
+    listCategories("fr")
       .then(({ categories }) => {
         setCategories(categories);
         setCategoryId((current) =>
@@ -38,7 +37,7 @@ export default function CreateLobbyPage() {
       .catch(() => {
         // Categories are optional at submit time; the API falls back to "Classic".
       });
-  }, [language]);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,7 +51,6 @@ export default function CreateLobbyPage() {
         maxPlayers,
         totalQuestions,
         categoryId: categoryId || undefined,
-        language,
       });
 
       const host = lobby.players.find((p) => p.isHost) ?? lobby.players[0];
@@ -188,28 +186,6 @@ export default function CreateLobbyPage() {
                 className="mt-2 h-12 rounded-xl border border-stone-300 px-4 text-stone-800 outline-none focus:border-stone-500"
               />
             )}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <span className="font-[family-name:var(--font-serif)] text-sm text-stone-600">
-              {t.createLobby.language}
-            </span>
-            <div className="flex gap-2">
-              {(["fr", "en"] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => setLanguage(lang)}
-                  className={`h-11 flex-1 rounded-xl border transition-colors ${
-                    language === lang
-                      ? "border-stone-800 bg-stone-800 text-stone-50"
-                      : "border-stone-300 text-stone-800 hover:bg-stone-100"
-                  }`}
-                >
-                  {lang === "fr" ? t.createLobby.french : t.createLobby.english}
-                </button>
-              ))}
-            </div>
           </div>
 
           <label className="flex flex-col gap-1.5">

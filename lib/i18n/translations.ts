@@ -70,9 +70,6 @@ type TranslationSet = {
     morePlayers: string;
     numberOfQuestions: string;
     custom: string;
-    language: string;
-    french: string;
-    english: string;
     category: string;
     creating: string;
     createLobby: string;
@@ -248,9 +245,6 @@ export const translations: Record<Language, TranslationSet> = {
       morePlayers: "More players",
       numberOfQuestions: "Number Of Questions",
       custom: "Custom",
-      language: "Language",
-      french: "Français",
-      english: "English",
       category: "Category",
       creating: "Creating...",
       createLobby: "Create lobby",
@@ -434,9 +428,6 @@ export const translations: Record<Language, TranslationSet> = {
       morePlayers: "Plus de joueurs",
       numberOfQuestions: "Nombre de questions",
       custom: "Personnalisé",
-      language: "Langue",
-      french: "Français",
-      english: "English",
       category: "Catégorie",
       creating: "Création...",
       createLobby: "Créer une partie",
