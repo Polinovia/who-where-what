@@ -42,11 +42,11 @@ export default function Home() {
           <div className="mt-12 flex flex-col items-center gap-1">
             <Link
               href="/how-to-play"
-              className="font-[family-name:var(--font-serif)] text-xl text-stone-800 hover:underline"
+              className="font-[family-name:var(--font-serif)] text-2xl text-stone-800 hover:underline"
             >
               {t.home.howToPlay}
             </Link>
-            <p className="font-[family-name:var(--font-serif)] italic text-sm text-stone-500">
+            <p className="font-[family-name:var(--font-serif)] italic text-base text-stone-500">
               {t.home.players}
             </p>
           </div>
