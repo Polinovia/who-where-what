@@ -108,7 +108,7 @@ export default function LobbyWaitingRoomPage() {
         </Link>
 
         {lobby?.name && (
-          <h1 className="text-center font-[family-name:var(--font-marker)] text-3xl text-stone-900">
+          <h1 className="mt-6 break-words text-center font-[family-name:var(--font-marker)] text-2xl leading-tight text-stone-900 sm:text-3xl">
             {lobby.name}
           </h1>
         )}
