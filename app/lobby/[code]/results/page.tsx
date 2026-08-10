@@ -9,10 +9,6 @@ import { createLobby, getFinishedStories, getLobby, likeStory } from "@/lib/api-
 import { getPlayerIdentity, getPlayerIdentitySnapshot, savePlayerIdentity, subscribePlayerIdentity } from "@/lib/player-identity";
 import { useLanguage } from "@/lib/i18n/language-context";
 
-function toSentence(text: string) {
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
 export default function ResultsPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
@@ -111,7 +107,7 @@ export default function ResultsPage() {
               </p>
 
               <p className="mt-4 font-[family-name:var(--font-serif)] leading-relaxed text-stone-800">
-                {story.answers.map((answer) => `${toSentence(answer.text)}.`).join(" ")}
+                {story.answers.map((answer) => answer.text).join(" ")}
               </p>
 
               <button
