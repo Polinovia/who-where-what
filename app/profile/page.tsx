@@ -148,6 +148,9 @@ export default function ProfilePage() {
                       }}
                     />
                   </div>
+                  <span className="text-xs text-stone-400">
+                    {t.profile.pointsProgress(level.pointsIntoLevel, level.pointsPerLevel)}
+                  </span>
                 </div>
               )}
 
