@@ -163,6 +163,14 @@ type TranslationSet = {
     SOCIAL_BUTTERFLY: { title: string; description: (n: number) => string };
     CROWD_PLEASER: { title: string; description: (n: number) => string };
     WORDSMITH: { title: string; description: (n: number) => string };
+    GENEROUS: { title: string; description: (n: number) => string };
+    VETERAN: { title: string; description: (n: number) => string };
+    NOVELIST: { title: string; description: (n: number) => string };
+    FAN_FAVORITE: { title: string; description: (n: number) => string };
+    POPULAR: { title: string; description: (n: number) => string };
+    PARTY_PLANNER: { title: string; description: (n: number) => string };
+    EXPLORER: { title: string; description: (n: number) => string };
+    FULL_HOUSE: { title: string; description: string };
     LEVEL_10: { title: string; description: string };
     LEVEL_30: { title: string; description: string };
     LEVEL_50: { title: string; description: string };
@@ -348,6 +356,26 @@ export const translations: Record<Language, TranslationSet> = {
         description: (n: number) => `Get ${n} likes on your stories`,
       },
       WORDSMITH: { title: "Wordsmith", description: (n: number) => `Write ${n} answers` },
+      GENEROUS: {
+        title: "Generous",
+        description: (n: number) => `Like ${n} other players' stories`,
+      },
+      VETERAN: { title: "Veteran", description: (n: number) => `Finish ${n} games` },
+      NOVELIST: { title: "Novelist", description: (n: number) => `Write ${n} answers` },
+      FAN_FAVORITE: {
+        title: "Fan favorite",
+        description: (n: number) => `Get ${n} likes on your stories`,
+      },
+      POPULAR: { title: "Popular", description: (n: number) => `Add ${n} friends` },
+      PARTY_PLANNER: {
+        title: "Party planner",
+        description: (n: number) => `Host ${n} finished games`,
+      },
+      EXPLORER: {
+        title: "Explorer",
+        description: (n: number) => `Play games in ${n} different categories`,
+      },
+      FULL_HOUSE: { title: "Full house", description: "Finish a game with 12 players" },
       LEVEL_10: { title: "Rising star", description: "Reach level 10" },
       LEVEL_30: { title: "Seasoned", description: "Reach level 30" },
       LEVEL_50: { title: "Master storyteller", description: "Reach level 50" },
@@ -531,6 +559,26 @@ export const translations: Record<Language, TranslationSet> = {
         description: (n: number) => `Reçois ${n} likes sur tes histoires`,
       },
       WORDSMITH: { title: "Plume affûtée", description: (n: number) => `Écris ${n} réponses` },
+      GENEROUS: {
+        title: "Généreux",
+        description: (n: number) => `Aime ${n} histoires d'autres joueurs`,
+      },
+      VETERAN: { title: "Vétéran", description: (n: number) => `Termine ${n} parties` },
+      NOVELIST: { title: "Romancier", description: (n: number) => `Écris ${n} réponses` },
+      FAN_FAVORITE: {
+        title: "Coup de cœur",
+        description: (n: number) => `Reçois ${n} likes sur tes histoires`,
+      },
+      POPULAR: { title: "Populaire", description: (n: number) => `Ajoute ${n} amis` },
+      PARTY_PLANNER: {
+        title: "Organisateur",
+        description: (n: number) => `Héberge ${n} parties terminées`,
+      },
+      EXPLORER: {
+        title: "Explorateur",
+        description: (n: number) => `Joue dans ${n} catégories différentes`,
+      },
+      FULL_HOUSE: { title: "Salle comble", description: "Termine une partie à 12 joueurs" },
       LEVEL_10: { title: "Étoile montante", description: "Atteins le niveau 10" },
       LEVEL_30: { title: "Aguerri", description: "Atteins le niveau 30" },
       LEVEL_50: { title: "Maître conteur", description: "Atteins le niveau 50" },

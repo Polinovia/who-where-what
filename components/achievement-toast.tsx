@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ACHIEVEMENT_INFO, THRESHOLDS, type AchievementType } from "@/lib/achievement-info";
+import { ACHIEVEMENT_ICONS, THRESHOLDS, type AchievementType } from "@/lib/achievement-info";
 import { useLanguage } from "@/lib/i18n/language-context";
 
 const DISPLAY_MS = 4000;
@@ -36,10 +36,9 @@ export function AchievementToasts({ types }: { types: string[] }) {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex flex-col items-center gap-2 px-4">
       {queue.map(({ id, type }) => {
-        const info = ACHIEVEMENT_INFO[type as AchievementType];
+        const Icon = ACHIEVEMENT_ICONS[type as AchievementType];
         const label = t.achievementInfo[type as AchievementType];
-        if (!info || !label) return null;
-        const Icon = info.icon;
+        if (!Icon || !label) return null;
         const threshold = THRESHOLDS[type as AchievementType];
         const description =
           typeof label.description === "function"

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { checkStoryLikedAchievement } from "@/lib/db/achievements";
+import { checkGenerousAchievement, checkStoryLikedAchievement } from "@/lib/db/achievements";
 
 export async function POST(
   request: NextRequest,
@@ -37,6 +37,7 @@ export async function POST(
   } else {
     await prisma.storyLike.create({ data: { storyId, playerId } });
     await checkStoryLikedAchievement(storyId);
+    if (player.userId) await checkGenerousAchievement(player.userId);
   }
 
   const likeCount = await prisma.storyLike.count({ where: { storyId } });

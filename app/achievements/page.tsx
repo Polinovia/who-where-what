@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { listAchievements } from "@/lib/api-client";
-import { ACHIEVEMENT_INFO, THRESHOLDS } from "@/lib/achievement-info";
+import { ACHIEVEMENT_ICONS, THRESHOLDS } from "@/lib/achievement-info";
 import { useLanguage } from "@/lib/i18n/language-context";
 
-const ALL_TYPES = Object.keys(ACHIEVEMENT_INFO) as (keyof typeof ACHIEVEMENT_INFO)[];
+const ALL_TYPES = Object.keys(ACHIEVEMENT_ICONS) as (keyof typeof ACHIEVEMENT_ICONS)[];
 
 export default function AchievementsPage() {
   const { data: session, status } = useSession();
@@ -51,7 +51,7 @@ export default function AchievementsPage() {
         ) : (
           <ul className="mt-8 flex flex-col gap-3">
             {ALL_TYPES.map((type) => {
-              const Icon = ACHIEVEMENT_INFO[type].icon;
+              const Icon = ACHIEVEMENT_ICONS[type];
               const info = t.achievementInfo[type];
               const threshold = THRESHOLDS[type];
               const description =

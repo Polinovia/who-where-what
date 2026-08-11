@@ -1,6 +1,6 @@
 export const POINTS_PER_GAME = 10;
 export const POINTS_PER_LIKE = 2;
-export const POINTS_PER_ACHIEVEMENT = 20;
+export const POINTS_PER_ACHIEVEMENT = 5;
 
 // Cumulative points needed to *reach* level L, from 0 — grows by 10 more
 // each level (level 1 = 10, level 2 = 30, level 3 = 60, level 4 = 100, ...),
