@@ -90,6 +90,7 @@ type TranslationSet = {
     lobbyCode: string;
     copied: string;
     tapToCopy: string;
+    players: string;
     you: string;
     host: string;
     kick: string;
@@ -262,9 +263,10 @@ export const translations: Record<Language, TranslationSet> = {
       joinLobby: "Join lobby",
     },
     waitingRoom: {
-      lobbyCode: "Lobby code",
+      lobbyCode: "Your lobby code",
       copied: "Copied!",
       tapToCopy: "Tap to copy",
+      players: "players",
       you: " (you)",
       host: "host",
       kick: "kick",
@@ -444,9 +446,10 @@ export const translations: Record<Language, TranslationSet> = {
       joinLobby: "Rejoindre",
     },
     waitingRoom: {
-      lobbyCode: "Code de la partie",
+      lobbyCode: "Ton code de partie",
       copied: "Copié !",
       tapToCopy: "Toucher pour copier",
+      players: "joueurs",
       you: " (toi)",
       host: "hôte",
       kick: "exclure",
