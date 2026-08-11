@@ -1,5 +1,6 @@
 import type {
   CreateLobbyInput,
+  InviteToLobbyInput,
   JoinLobbyInput,
   SetReadyInput,
   SubmitAnswerInput,
@@ -151,7 +152,7 @@ export async function listCategories(language: string) {
   return parseJson<{ categories: Category[] }>(res);
 }
 
-type Friend = { id: string; name: string; email: string };
+type Friend = { id: string; name: string; email: string; avatarUrl: string | null };
 
 export async function listFriends() {
   const res = await fetch("/api/friends");
@@ -249,4 +250,36 @@ export async function kickPlayer(
     body: JSON.stringify(input),
   });
   return parseJson<{ lobby: Lobby }>(res);
+}
+
+export async function inviteFriendToLobby(code: string, input: InviteToLobbyInput) {
+  const res = await fetch(`/api/lobby/${code}/invite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return parseJson<{ status: "ok" }>(res);
+}
+
+export async function getInvitedFriendIds(code: string, requesterPlayerId: string) {
+  const res = await fetch(
+    `/api/lobby/${code}/invite?requesterPlayerId=${encodeURIComponent(requesterPlayerId)}`,
+  );
+  return parseJson<{ invitedUserIds: string[] }>(res);
+}
+
+type LobbyInvite = {
+  id: string;
+  lobby: { code: string; name: string | null };
+  fromUser: { name: string };
+};
+
+export async function listMyInvites() {
+  const res = await fetch("/api/invites");
+  return parseJson<{ invites: LobbyInvite[] }>(res);
+}
+
+export async function dismissInvite(id: string) {
+  const res = await fetch(`/api/invites/${id}`, { method: "DELETE" });
+  return parseJson<{ status: "ok" }>(res);
 }

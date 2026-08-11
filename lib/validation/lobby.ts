@@ -52,3 +52,9 @@ export const submitAnswerSchema = z.object({
   language: languageSchema.optional().default("fr"),
 });
 export type SubmitAnswerInput = z.input<typeof submitAnswerSchema>;
+
+export const inviteToLobbySchema = z.object({
+  requesterPlayerId: z.string().min(1),
+  toUserId: z.string().min(1),
+});
+export type InviteToLobbyInput = z.infer<typeof inviteToLobbySchema>;

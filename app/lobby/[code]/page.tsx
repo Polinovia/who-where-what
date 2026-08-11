@@ -4,7 +4,15 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getLobby, setReady, kickPlayer, startLobbyNow } from "@/lib/api-client";
+import {
+  getInvitedFriendIds,
+  getLobby,
+  inviteFriendToLobby,
+  kickPlayer,
+  listFriends,
+  setReady,
+  startLobbyNow,
+} from "@/lib/api-client";
 import { getPlayerIdentity, getPlayerIdentitySnapshot, subscribePlayerIdentity } from "@/lib/player-identity";
 import { useLanguage } from "@/lib/i18n/language-context";
 
@@ -30,6 +38,35 @@ export default function LobbyWaitingRoomPage() {
     refetchInterval: 1500,
   });
   const lobby = data?.lobby;
+  const me = lobby?.players.find((p) => p.id === identity?.playerId);
+  const canInvite = !!me?.isHost && !!me?.userId;
+
+  const { data: friendsData } = useQuery({
+    queryKey: ["friends"],
+    queryFn: listFriends,
+    enabled: canInvite,
+  });
+
+  const { data: invitedData } = useQuery({
+    queryKey: ["lobbyInvites", code],
+    queryFn: () => getInvitedFriendIds(code, identity!.playerId),
+    enabled: canInvite,
+  });
+
+  const inviteMutation = useMutation({
+    mutationFn: (toUserId: string) =>
+      inviteFriendToLobby(code, { requesterPlayerId: identity!.playerId, toUserId }),
+    onSuccess: (_result, toUserId) => {
+      queryClient.setQueryData(
+        ["lobbyInvites", code],
+        (current: { invitedUserIds: string[] } | undefined) =>
+          current
+            ? { invitedUserIds: [...current.invitedUserIds, toUserId] }
+            : { invitedUserIds: [toUserId] },
+      );
+    },
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
+  });
 
   useEffect(() => {
     if (getPlayerIdentity(code) === null) {
@@ -70,8 +107,6 @@ export default function LobbyWaitingRoomPage() {
   });
 
   if (!identity) return null;
-
-  const me = lobby?.players.find((p) => p.id === identity.playerId);
 
   function copyCode() {
     navigator.clipboard.writeText(code).then(() => {
@@ -172,6 +207,67 @@ export default function LobbyWaitingRoomPage() {
             })}
           </ul>
         </div>
+
+        {canInvite && (
+          <div className="mt-8">
+            <h2 className="border-b border-stone-800 pb-2 font-[family-name:var(--font-serif)] text-2xl text-stone-900">
+              {t.waitingRoom.inviteFriends}
+            </h2>
+
+            {(() => {
+              const playerUserIds = new Set(
+                lobby?.players.map((p) => p.userId).filter((id): id is string => Boolean(id)),
+              );
+              const invitedUserIds = new Set(invitedData?.invitedUserIds ?? []);
+              const invitableFriends =
+                friendsData?.friends.filter((f) => !playerUserIds.has(f.id)) ?? [];
+
+              if (invitableFriends.length === 0) {
+                return (
+                  <p className="mt-3 text-center font-[family-name:var(--font-serif)] italic text-stone-500">
+                    {t.waitingRoom.noFriendsToInvite}
+                  </p>
+                );
+              }
+
+              return (
+                <ul className="flex flex-col">
+                  {invitableFriends.map((friend) => {
+                    const invited = invitedUserIds.has(friend.id);
+                    return (
+                      <li key={friend.id} className="flex items-center justify-between py-3">
+                        <div className="flex items-center gap-3">
+                          {friend.avatarUrl ? (
+                            <img
+                              src={friend.avatarUrl}
+                              alt=""
+                              className="h-9 w-9 rounded-full border border-stone-300 object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-300 bg-stone-200 font-[family-name:var(--font-marker)] text-sm text-stone-600">
+                              {friend.name.slice(0, 1).toUpperCase()}
+                            </div>
+                          )}
+                          <span className="font-[family-name:var(--font-serif)] text-lg text-stone-800">
+                            {friend.name}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={invited || inviteMutation.isPending}
+                          onClick={() => inviteMutation.mutate(friend.id)}
+                          className="text-sm text-stone-500 underline hover:text-stone-800 disabled:no-underline disabled:opacity-50"
+                        >
+                          {invited ? t.waitingRoom.invited : t.waitingRoom.invite}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              );
+            })()}
+          </div>
+        )}
 
         <button
           type="button"

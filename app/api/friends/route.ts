@@ -12,7 +12,7 @@ export async function GET() {
 
   const friendships = await prisma.friendship.findMany({
     where: { userId: session.user.id },
-    include: { friend: { select: { id: true, name: true, email: true } } },
+    include: { friend: { select: { id: true, name: true, email: true, avatarUrl: true } } },
     orderBy: { createdAt: "asc" },
   });
 
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
   ]);
 
   return NextResponse.json(
-    { friend: { id: friend.id, name: friend.name, email: friend.email } },
+    { friend: { id: friend.id, name: friend.name, email: friend.email, avatarUrl: friend.avatarUrl } },
     { status: 201 },
   );
 }

@@ -49,10 +49,12 @@ model User {
   bio          String?
   createdAt    DateTime @default(now())
 
-  players      Player[]
-  friendships  Friendship[]      @relation("FriendshipUser")
-  friendOf     Friendship[]      @relation("FriendshipFriend")
-  achievements UserAchievement[]
+  players         Player[]
+  friendships     Friendship[]      @relation("FriendshipUser")
+  friendOf        Friendship[]      @relation("FriendshipFriend")
+  achievements    UserAchievement[]
+  sentInvites     LobbyInvite[]     @relation("LobbyInviteFrom")
+  receivedInvites LobbyInvite[]     @relation("LobbyInviteTo")
 }
 
 model UserAchievement {
@@ -81,6 +83,26 @@ model Friendship {
   @@unique([userId, friendId])
 }
 
+// A host inviting a friend to a still-open lobby. Invites for lobbies that
+// have since started or finished are simply never surfaced to the invitee —
+// no cleanup needed, they just age out of every query that filters by
+// lobby.status.
+model LobbyInvite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  lobbyId String
+  lobby   Lobby  @relation(fields: [lobbyId], references: [id])
+
+  fromUserId String
+  fromUser   User   @relation("LobbyInviteFrom", fields: [fromUserId], references: [id])
+
+  toUserId String
+  toUser   User   @relation("LobbyInviteTo", fields: [toUserId], references: [id])
+
+  @@unique([lobbyId, toUserId])
+}
+
 model Lobby {
   id             String      @id @default(cuid())
   code           String      @unique
@@ -97,6 +119,7 @@ model Lobby {
 
   players Player[]
   stories Story[]
+  invites LobbyInvite[]
 }
 
 model Player {
@@ -116,7 +139,7 @@ model Player {
   user   User?   @relation(fields: [userId], references: [id])
 
   answers        Answer[]
-  storiesStarted Story[]  @relation("StoryStarter")
+  storiesStarted Story[]     @relation("StoryStarter")
   storyLikes     StoryLike[]
 
   @@unique([lobbyId, pseudo])

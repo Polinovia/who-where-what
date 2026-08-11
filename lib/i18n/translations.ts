@@ -101,6 +101,10 @@ type TranslationSet = {
     storyStartsHint: string;
     startNow: string;
     starting: string;
+    inviteFriends: string;
+    invite: string;
+    invited: string;
+    noFriendsToInvite: string;
   };
   play: {
     question: (round: number, total: number) => string;
@@ -128,6 +132,11 @@ type TranslationSet = {
     add: string;
     friendIdPlaceholder: string;
     noFriendsYet: string;
+  };
+  invites: {
+    invitedBy: (name: string) => string;
+    join: string;
+    dismiss: string;
   };
   profile: {
     title: string;
@@ -287,6 +296,10 @@ export const translations: Record<Language, TranslationSet> = {
       storyStartsHint: "The story starts once everyone is ready.",
       startNow: "Start now (skip waiting for ready)",
       starting: "Starting...",
+      inviteFriends: "Invite friends",
+      invite: "Invite",
+      invited: "Invited",
+      noFriendsToInvite: "No friends to invite yet.",
     },
     play: {
       question: (round: number, total: number) => `Question ${round} / ${total}`,
@@ -314,6 +327,11 @@ export const translations: Record<Language, TranslationSet> = {
       add: "Add",
       friendIdPlaceholder: "Friend's player ID",
       noFriendsYet: "No friends yet — add one above.",
+    },
+    invites: {
+      invitedBy: (name: string) => `${name} invited you to play`,
+      join: "Join",
+      dismiss: "Dismiss",
     },
     profile: {
       title: "Profile",
@@ -492,6 +510,10 @@ export const translations: Record<Language, TranslationSet> = {
       storyStartsHint: "L'histoire commence une fois que tout le monde est prêt.",
       startNow: "Démarrer maintenant (sans attendre)",
       starting: "Démarrage...",
+      inviteFriends: "Inviter des amis",
+      invite: "Inviter",
+      invited: "Invité",
+      noFriendsToInvite: "Pas encore d'amis à inviter.",
     },
     play: {
       question: (round: number, total: number) => `Question ${round} / ${total}`,
@@ -519,6 +541,11 @@ export const translations: Record<Language, TranslationSet> = {
       add: "Ajouter",
       friendIdPlaceholder: "Identifiant de ton ami",
       noFriendsYet: "Pas encore d'amis — ajoute-en un ci-dessus.",
+    },
+    invites: {
+      invitedBy: (name: string) => `${name} t'a invité à jouer`,
+      join: "Rejoindre",
+      dismiss: "Ignorer",
     },
     profile: {
       title: "Profil",

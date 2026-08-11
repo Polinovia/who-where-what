@@ -55,6 +55,14 @@ export async function POST(
       },
     });
 
+    if (session?.user?.id) {
+      // Clean up a pending invite for this lobby, if any — the player is in
+      // now, so it has nothing left to tell them.
+      await prisma.lobbyInvite
+        .delete({ where: { lobbyId_toUserId: { lobbyId: lobby.id, toUserId: session.user.id } } })
+        .catch(() => {});
+    }
+
     return NextResponse.json({ lobby, player }, { status: 201 });
   } catch (err) {
     if (
