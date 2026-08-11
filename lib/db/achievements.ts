@@ -8,7 +8,7 @@ import {
   STORYTELLER_THRESHOLD,
   WORDSMITH_THRESHOLD,
 } from "@/lib/achievement-info";
-import { computeUserPoints } from "@/lib/db/points";
+import { computeUserPoints, finishedHumanGamesWhere } from "@/lib/db/points";
 import { getLevel } from "@/lib/player-level";
 
 const LEVEL_ACHIEVEMENT_TYPES = new Set(LEVEL_MILESTONES.map((m) => m.type));
@@ -59,11 +59,15 @@ export async function checkLevelAchievements(userId: string) {
 export async function checkGameFinishedAchievements(lobbyId: string) {
   const lobby = await prisma.lobby.findUnique({
     where: { id: lobbyId },
-    include: { players: { where: { userId: { not: null } } } },
+    include: { players: true },
   });
   if (!lobby) return;
 
-  const userIds = lobby.players.map((p) => p.userId!).filter(Boolean);
+  // Solo games against bots don't count toward progression — see
+  // finishedHumanGamesWhere.
+  if (lobby.players.some((p) => p.isBot)) return;
+
+  const userIds = lobby.players.map((p) => p.userId).filter((id): id is string => Boolean(id));
   if (userIds.length === 0) return;
 
   await Promise.all(
@@ -108,7 +112,7 @@ export async function checkStoryLikedAchievement(storyId: string) {
 
 async function checkStoryteller(userId: string) {
   const finishedGames = await prisma.lobby.count({
-    where: { status: "FINISHED", players: { some: { userId } } },
+    where: finishedHumanGamesWhere(userId),
   });
   if (finishedGames >= STORYTELLER_THRESHOLD) {
     await unlockAchievement(userId, "STORYTELLER");
@@ -117,7 +121,7 @@ async function checkStoryteller(userId: string) {
 
 async function checkWordsmith(userId: string) {
   const answersWritten = await prisma.answer.count({
-    where: { player: { userId } },
+    where: { player: { userId }, story: { lobby: { players: { none: { isBot: true } } } } },
   });
   if (answersWritten >= WORDSMITH_THRESHOLD) {
     await unlockAchievement(userId, "WORDSMITH");

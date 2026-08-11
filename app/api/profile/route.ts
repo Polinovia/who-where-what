@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/auth";
 import { updateProfileSchema } from "@/lib/validation/profile";
-import { computeUserPoints } from "@/lib/db/points";
+import { computeUserPoints, finishedHumanGamesWhere } from "@/lib/db/points";
 
 const profileSelect = {
   id: true,
@@ -23,7 +23,7 @@ export async function GET() {
     prisma.user.findUnique({ where: { id: session.user.id }, select: profileSelect }),
     prisma.friendship.count({ where: { userId: session.user.id } }),
     prisma.lobby.count({
-      where: { status: "FINISHED", players: { some: { userId: session.user.id } } },
+      where: finishedHumanGamesWhere(session.user.id),
     }),
     computeUserPoints(session.user.id),
   ]);
