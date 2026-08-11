@@ -49,7 +49,30 @@ export async function POST(request: NextRequest) {
 
   const user = await prisma.user.update({
     where: { id: session.user.id },
-    data: { avatarUrl: `/api/avatars/${key}?v=${Date.now()}` },
+    data: { avatarUrl: `/api/avatars/${key}/${Date.now()}` },
+    select: profileSelect,
+  });
+
+  return NextResponse.json({ user });
+}
+
+export async function DELETE() {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  }
+
+  try {
+    const store = getAvatarStore();
+    await store.delete(session.user.id);
+  } catch {
+    // Blob storage being unavailable shouldn't block clearing the DB
+    // reference — the fallback initial-letter avatar doesn't depend on it.
+  }
+
+  const user = await prisma.user.update({
+    where: { id: session.user.id },
+    data: { avatarUrl: null },
     select: profileSelect,
   });
 

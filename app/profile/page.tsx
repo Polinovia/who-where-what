@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getProfile, listAchievements, updateProfile, uploadAvatar } from "@/lib/api-client";
+import { deleteAvatar, getProfile, listAchievements, updateProfile, uploadAvatar } from "@/lib/api-client";
 import { ACHIEVEMENT_ICONS } from "@/lib/achievement-info";
 import { getLevelProgress } from "@/lib/player-level";
 import { resizeImage } from "@/lib/resize-image";
@@ -48,6 +48,16 @@ export default function ProfilePage() {
 
   const uploadAvatarMutation = useMutation({
     mutationFn: async (file: File) => uploadAvatar(await resizeImage(file)),
+    onSuccess: ({ user }) => {
+      queryClient.setQueryData(["profile"], (current: typeof profileData) =>
+        current ? { ...current, user } : current,
+      );
+    },
+    onError: (err) => setError(err instanceof Error ? err.message : t.common.unexpectedError),
+  });
+
+  const deleteAvatarMutation = useMutation({
+    mutationFn: deleteAvatar,
     onSuccess: ({ user }) => {
       queryClient.setQueryData(["profile"], (current: typeof profileData) =>
         current ? { ...current, user } : current,
@@ -118,16 +128,30 @@ export default function ProfilePage() {
                       e.target.value = "";
                     }}
                   />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadAvatarMutation.isPending}
-                    className="mt-2 text-xs text-stone-500 underline hover:text-stone-800 disabled:opacity-50"
-                  >
-                    {uploadAvatarMutation.isPending
-                      ? t.profile.uploadingPhoto
-                      : t.profile.changePhoto}
-                  </button>
+                  <div className="mt-2 flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadAvatarMutation.isPending || deleteAvatarMutation.isPending}
+                      className="text-xs text-stone-500 underline hover:text-stone-800 disabled:opacity-50"
+                    >
+                      {uploadAvatarMutation.isPending
+                        ? t.profile.uploadingPhoto
+                        : t.profile.changePhoto}
+                    </button>
+                    {user.avatarUrl && (
+                      <button
+                        type="button"
+                        onClick={() => deleteAvatarMutation.mutate()}
+                        disabled={uploadAvatarMutation.isPending || deleteAvatarMutation.isPending}
+                        className="text-xs text-red-500 underline hover:text-red-700 disabled:opacity-50"
+                      >
+                        {deleteAvatarMutation.isPending
+                          ? t.profile.removingPhoto
+                          : t.profile.removePhoto}
+                      </button>
+                    )}
+                  </div>
                 </>
               )}
 

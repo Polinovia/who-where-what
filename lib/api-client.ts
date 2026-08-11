@@ -225,6 +225,11 @@ export async function uploadAvatar(file: Blob) {
   return parseJson<{ user: Profile }>(res);
 }
 
+export async function deleteAvatar() {
+  const res = await fetch("/api/profile/avatar", { method: "DELETE" });
+  return parseJson<{ user: Profile }>(res);
+}
+
 type PlayerSearchResult = { id: string; name: string; playerCode: string; avatarUrl: string | null };
 
 export async function searchPlayerByCode(code: string) {

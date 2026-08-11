@@ -140,6 +140,8 @@ type TranslationSet = {
     achievements: string;
     changePhoto: string;
     uploadingPhoto: string;
+    removePhoto: string;
+    removingPhoto: string;
     bio: string;
     bioPlaceholder: string;
     cancel: string;
@@ -324,6 +326,8 @@ export const translations: Record<Language, TranslationSet> = {
       achievements: "Achievements",
       changePhoto: "Change photo",
       uploadingPhoto: "Uploading...",
+      removePhoto: "Remove photo",
+      removingPhoto: "Removing...",
       bio: "Bio",
       bioPlaceholder: "Tell your friends about yourself",
       cancel: "Cancel",
@@ -527,6 +531,8 @@ export const translations: Record<Language, TranslationSet> = {
       achievements: "Succès",
       changePhoto: "Changer la photo",
       uploadingPhoto: "Envoi...",
+      removePhoto: "Retirer la photo",
+      removingPhoto: "Suppression...",
       bio: "Bio",
       bioPlaceholder: "Parle de toi à tes amis",
       cancel: "Annuler",

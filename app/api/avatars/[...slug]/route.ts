@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { getAvatarStore } from "@/lib/avatar-store";
 
+// Accepts /api/avatars/{userId} or /api/avatars/{userId}/{version} — the
+// optional version segment only exists to bust Netlify's edge cache (it
+// varies by path, not by query string, so a `?v=` param on a single-segment
+// URL would silently keep serving the first-ever upload forever).
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ key: string }> },
+  { params }: { params: Promise<{ slug: string[] }> },
 ) {
-  const { key } = await params;
+  const { slug } = await params;
+  const key = slug[0];
 
   let store;
   try {
