@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Caveat, Permanent_Marker, Playfair_Display } from "next/font/google";
 import { Providers } from "./providers";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { AchievementNotifier } from "@/components/achievement-notifier";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <Providers>
           <LanguageSwitcher />
+          <AchievementNotifier />
           {children}
         </Providers>
       </body>

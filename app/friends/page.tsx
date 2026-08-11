@@ -102,25 +102,22 @@ export default function FriendsPage() {
               {data?.friends.map((friend) => (
                 <li
                   key={friend.id}
-                  className="flex items-center justify-between rounded-xl border border-stone-300 px-4 py-3"
+                  className="flex items-center gap-3 rounded-xl border border-stone-300 px-4 py-3"
                 >
-                  <div className="flex items-center gap-3">
-                    {friend.avatarUrl ? (
-                      <img
-                        src={friend.avatarUrl}
-                        alt=""
-                        className="h-9 w-9 rounded-full border border-stone-300 object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-300 bg-stone-200 font-[family-name:var(--font-marker)] text-sm text-stone-600">
-                        {friend.name.slice(0, 1).toUpperCase()}
-                      </div>
-                    )}
-                    <span className="font-[family-name:var(--font-serif)] text-stone-800">
-                      {friend.name}
-                    </span>
-                  </div>
-                  <span className="text-sm text-stone-400">{friend.email}</span>
+                  {friend.avatarUrl ? (
+                    <img
+                      src={friend.avatarUrl}
+                      alt=""
+                      className="h-9 w-9 rounded-full border border-stone-300 object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-300 bg-stone-200 font-[family-name:var(--font-marker)] text-sm text-stone-600">
+                      {friend.name.slice(0, 1).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="font-[family-name:var(--font-serif)] text-stone-800">
+                    {friend.name}
+                  </span>
                 </li>
               ))}
             </ul>
