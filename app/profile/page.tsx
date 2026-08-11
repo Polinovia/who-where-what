@@ -5,12 +5,12 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfile, listAchievements, updateProfile, uploadAvatar } from "@/lib/api-client";
-import { ACHIEVEMENT_INFO } from "@/lib/achievement-info";
+import { ACHIEVEMENT_ICONS } from "@/lib/achievement-info";
 import { getLevelProgress } from "@/lib/player-level";
 import { resizeImage } from "@/lib/resize-image";
 import { useLanguage } from "@/lib/i18n/language-context";
 
-const ALL_TYPES = Object.keys(ACHIEVEMENT_INFO) as (keyof typeof ACHIEVEMENT_INFO)[];
+const ALL_TYPES = Object.keys(ACHIEVEMENT_ICONS) as (keyof typeof ACHIEVEMENT_ICONS)[];
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();

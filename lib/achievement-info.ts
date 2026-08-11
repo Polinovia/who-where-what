@@ -1,16 +1,24 @@
 import {
   Award,
   BookOpen,
+  Compass,
   Crown,
   Drama,
   Feather,
+  Flame,
   Gem,
+  Gift,
   Handshake,
   Heart,
   Library,
   Medal,
+  PartyPopper,
+  ScrollText,
   Sparkles,
+  Star,
+  Trophy,
   Users,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -23,6 +31,14 @@ export type AchievementType =
   | "SOCIAL_BUTTERFLY"
   | "CROWD_PLEASER"
   | "WORDSMITH"
+  | "GENEROUS"
+  | "VETERAN"
+  | "NOVELIST"
+  | "FAN_FAVORITE"
+  | "POPULAR"
+  | "PARTY_PLANNER"
+  | "EXPLORER"
+  | "FULL_HOUSE"
   | "LEVEL_10"
   | "LEVEL_30"
   | "LEVEL_50"
@@ -30,9 +46,17 @@ export type AchievementType =
 
 export const ACCOMPLICE_THRESHOLD = 3;
 export const STORYTELLER_THRESHOLD = 10;
+export const VETERAN_THRESHOLD = 25;
 export const SOCIAL_BUTTERFLY_THRESHOLD = 5;
+export const POPULAR_THRESHOLD = 10;
 export const CROWD_PLEASER_THRESHOLD = 10;
+export const FAN_FAVORITE_THRESHOLD = 25;
 export const WORDSMITH_THRESHOLD = 50;
+export const NOVELIST_THRESHOLD = 150;
+export const GENEROUS_THRESHOLD = 5;
+export const PARTY_PLANNER_THRESHOLD = 10;
+export const EXPLORER_THRESHOLD = 5;
+export const FULL_HOUSE_THRESHOLD = 12;
 
 // Level milestones that unlock a bonus achievement, in ascending order.
 export const LEVEL_MILESTONES: { level: number; type: AchievementType }[] = [
@@ -47,73 +71,37 @@ export const LEVEL_MILESTONES: { level: number; type: AchievementType }[] = [
 export const THRESHOLDS: Partial<Record<AchievementType, number>> = {
   ACCOMPLICE: ACCOMPLICE_THRESHOLD,
   STORYTELLER: STORYTELLER_THRESHOLD,
+  VETERAN: VETERAN_THRESHOLD,
   SOCIAL_BUTTERFLY: SOCIAL_BUTTERFLY_THRESHOLD,
+  POPULAR: POPULAR_THRESHOLD,
   CROWD_PLEASER: CROWD_PLEASER_THRESHOLD,
+  FAN_FAVORITE: FAN_FAVORITE_THRESHOLD,
   WORDSMITH: WORDSMITH_THRESHOLD,
+  NOVELIST: NOVELIST_THRESHOLD,
+  GENEROUS: GENEROUS_THRESHOLD,
+  PARTY_PLANNER: PARTY_PLANNER_THRESHOLD,
+  EXPLORER: EXPLORER_THRESHOLD,
 };
 
-export const ACHIEVEMENT_INFO: Record<
-  AchievementType,
-  { title: string; description: string; icon: LucideIcon }
-> = {
-  FIRST_STORY: {
-    title: "First story",
-    description: "Finish your first game",
-    icon: BookOpen,
-  },
-  FIRST_FRIEND: {
-    title: "Made a friend",
-    description: "Add your first friend",
-    icon: Handshake,
-  },
-  ACCOMPLICE: {
-    title: "Accomplice",
-    description: `Finish ${ACCOMPLICE_THRESHOLD} games with the same friend`,
-    icon: Drama,
-  },
-  STORY_LIKED: {
-    title: "Crowd favorite",
-    description: "Get one of your stories liked",
-    icon: Heart,
-  },
-  STORYTELLER: {
-    title: "Storyteller",
-    description: `Finish ${STORYTELLER_THRESHOLD} games`,
-    icon: Library,
-  },
-  SOCIAL_BUTTERFLY: {
-    title: "Social butterfly",
-    description: `Add ${SOCIAL_BUTTERFLY_THRESHOLD} friends`,
-    icon: Users,
-  },
-  CROWD_PLEASER: {
-    title: "Crowd pleaser",
-    description: `Get ${CROWD_PLEASER_THRESHOLD} likes on your stories`,
-    icon: Sparkles,
-  },
-  WORDSMITH: {
-    title: "Wordsmith",
-    description: `Write ${WORDSMITH_THRESHOLD} answers`,
-    icon: Feather,
-  },
-  LEVEL_10: {
-    title: "Rising star",
-    description: "Reach level 10",
-    icon: Medal,
-  },
-  LEVEL_30: {
-    title: "Seasoned",
-    description: "Reach level 30",
-    icon: Award,
-  },
-  LEVEL_50: {
-    title: "Master storyteller",
-    description: "Reach level 50",
-    icon: Crown,
-  },
-  LEVEL_100: {
-    title: "Legend",
-    description: "Reach level 100",
-    icon: Gem,
-  },
+export const ACHIEVEMENT_ICONS: Record<AchievementType, LucideIcon> = {
+  FIRST_STORY: BookOpen,
+  FIRST_FRIEND: Handshake,
+  ACCOMPLICE: Drama,
+  STORY_LIKED: Heart,
+  STORYTELLER: Library,
+  SOCIAL_BUTTERFLY: Users,
+  CROWD_PLEASER: Sparkles,
+  WORDSMITH: Feather,
+  GENEROUS: Gift,
+  VETERAN: Trophy,
+  NOVELIST: ScrollText,
+  FAN_FAVORITE: Flame,
+  POPULAR: Star,
+  PARTY_PLANNER: PartyPopper,
+  EXPLORER: Compass,
+  FULL_HOUSE: UsersRound,
+  LEVEL_10: Medal,
+  LEVEL_30: Award,
+  LEVEL_50: Crown,
+  LEVEL_100: Gem,
 };
